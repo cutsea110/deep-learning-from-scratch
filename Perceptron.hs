@@ -6,11 +6,18 @@ import qualified Data.Array.Repa as R
 import Data.Array.Repa.Algorithms.Matrix
 import Data.Array.Repa.Algorithms.Randomish
 
-pAND x1 x2 | tmp <= theta = 0
-           | otherwise    = 1
+pAND x1 x2 | tmp <= 0  = 0
+           | otherwise = 1
   where
-    (w1, w2, theta) = (0.5, 0.5, 0.7)
-    tmp = x1 * w1 + x2 * w2
+    x, w :: R.Array R.U R.DIM2 Double
+    x = R.fromListUnboxed (R.Z R.:. 2 R.:. 1) [x1, x2]
+    w = R.fromListUnboxed (R.Z R.:. 2 R.:. 1) [0.5, 0.5]
+    b = -0.7
+--    tmp = b + R.sumAllS (mmultS x w)
+    tmp = runST $ do
+      t <- mmultP x w
+      s <- R.sumAllP t
+      return $ b + s
 
 pNAND x1 x2 | tmp <= theta = 0
             | otherwise    = 1
