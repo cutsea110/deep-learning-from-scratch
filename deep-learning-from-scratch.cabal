@@ -18,6 +18,7 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Perceptron
+                     , Neuron
   -- other-modules:
   -- other-extensions:
   build-depends:       base >=4.11 && <4.12, repa >=3.4 && <3.5, repa-algorithms >=3.4 && <3.5
