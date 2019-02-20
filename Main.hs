@@ -5,6 +5,7 @@ import Control.Monad.ST
 import qualified Data.Array.Repa as R
 import Data.Array.Repa.Algorithms.Matrix
 import Data.Array.Repa.Algorithms.Randomish
+import Graphics.Gnuplot.Simple
 
 import Perceptron
 
@@ -26,3 +27,6 @@ v1 = R.fromListUnboxed (R.Z R.:. 2 R.:. 1) [5,6]
 
 rands :: R.Array R.U R.DIM1 Double
 rands = randomishDoubleArray (R.Z R.:. 10) 0.4 0.6 1
+
+plotSin :: IO ()
+plotSin = plotPath [(Title "Sin")] $ zip <$> id <*> fmap sin $ linearScale 1000 (0.0 :: Double, 2*pi)
