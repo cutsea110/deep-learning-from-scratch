@@ -28,9 +28,9 @@ stepFunction x | x > 0     = 1
 
 sigmoidFunction x = 1 / (1 + exp (-x))
 
-genSteperon (w1, w2, bias) = generate (w1, w2, bias, stepFunction)
-
 genPerceptron (w1, w2, bias) = generate (w1, w2, bias, perceptronFunction)
+genSteperon (w1, w2, bias) = generate (w1, w2, bias, stepFunction)
+genNeuron (w1, w2, bias) = generate (w1, w2, bias, sigmoidFunction)
 
 pAND  = genPerceptron ( 0.5,  0.5, -0.7)
 pNAND = genPerceptron (-0.5, -0.5,  0.7)
