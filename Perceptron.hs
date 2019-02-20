@@ -23,6 +23,7 @@ genPerceptron (w1, w2, bias) = perceptron
 pAND  = genPerceptron ( 0.5,  0.5, -0.7)
 pNAND = genPerceptron (-0.5, -0.5,  0.7)
 pOR   = genPerceptron ( 0.5,  0.5, -0.2)
+pXOR x1 x2 = pAND (pNAND x1 x2) (pOR x1 x2)
 
 x :: R.Array R.U R.DIM2 Double
 x = R.fromListUnboxed (R.Z R.:. 3 R.:. 2) [0..5]
