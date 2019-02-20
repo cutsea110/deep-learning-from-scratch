@@ -6,10 +6,10 @@ import qualified Data.Array.Repa as R
 import Data.Array.Repa.Algorithms.Matrix
 import Data.Array.Repa.Algorithms.Randomish
 
-genPerceptron (w1, w2, bias) = perceptron
+-- h is activation function
+generate (w1, w2, bias, h) = neuron
   where
-    perceptron x1 x2 | tmp <= 0  = 0
-                     | otherwise = 1
+    neuron x1 x2 = h tmp
       where
         x, w :: R.Array R.U R.DIM2 Double
         x = R.fromListUnboxed (R.Z R.:. 2 R.:. 1) [x1, x2]
@@ -19,6 +19,18 @@ genPerceptron (w1, w2, bias) = perceptron
           t <- mmultP x w
           s <- R.sumAllP t
           return $ bias + s
+
+perceptronFunction x | x <= 0    = 0
+                     | otherwise = 1
+
+stepFunction x | x > 0     = 1
+               | otherwise = 0
+
+sigmoidFunction x = 1 / (1 + exp (-x))
+
+genSteperon (w1, w2, bias) = generate (w1, w2, bias, stepFunction)
+
+genPerceptron (w1, w2, bias) = generate (w1, w2, bias, perceptronFunction)
 
 pAND  = genPerceptron ( 0.5,  0.5, -0.7)
 pNAND = genPerceptron (-0.5, -0.5,  0.7)
