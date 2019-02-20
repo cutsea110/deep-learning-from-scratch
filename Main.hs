@@ -8,6 +8,7 @@ import Data.Array.Repa.Algorithms.Randomish
 import Graphics.Gnuplot.Simple
 
 import Perceptron
+import Neuron (perceptronFunction)
 
 x :: R.Array R.U R.DIM2 Double
 x = R.fromListUnboxed (R.Z R.:. 3 R.:. 2) [0..5]
@@ -30,3 +31,6 @@ rands = randomishDoubleArray (R.Z R.:. 10) 0.4 0.6 1
 
 plotSin :: IO ()
 plotSin = plotPath [(Title "Sin")] $ zip <$> id <*> fmap sin $ linearScale 1000 (0.0 :: Double, 2*pi)
+
+plotPerceptron :: IO ()
+plotPerceptron = plotPath [(Title "Perceptron")] $ zip <$> id <*> fmap perceptronFunction $ linearScale 1000 (-2.0 :: Double, 2.0)
