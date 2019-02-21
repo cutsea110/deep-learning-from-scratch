@@ -1,6 +1,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Neuron ( generate
               , generateP
+              , triple
+              , tripleP
               , forward
               -- functions like as sigmoid
               , perceptronFunction
