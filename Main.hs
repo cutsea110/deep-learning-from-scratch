@@ -45,10 +45,18 @@ w2 = R.fromListUnboxed (R.Z R.:. 3 R.:. 2) [0.1, 0.4, 0.2, 0.5, 0.3, 0.6]
 b2 :: R.Array R.U R.DIM2 Double
 b2 = R.fromListUnboxed (R.Z R.:. 1 R.:. 2) [0.1, 0.2]
 
-a = triple id x w1 b1
+w3 :: R.Array R.U R.DIM2 Double
+w3 = R.fromListUnboxed (R.Z R.:. 2 R.:. 2) [0.1, 0.3, 0.2, 0.4]
+b3 :: R.Array R.U R.DIM2 Double
+b3 = R.fromListUnboxed (R.Z R.:. 1 R.:. 2) [0.1, 0.2]
+
+
+a1 = triple id x w1 b1
 z1 = triple sigmoidFunction x w1 b1
 a2 = triple id z1 w2 b2
 z2 = triple sigmoidFunction z1 w2 b2
+a3 = triple id z2 w3 b3
+y = triple id z2 w3 b3
 
 triple f x w b = runST $ do
   xw <- mmultP x w1
