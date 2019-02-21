@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Neuron ( generate
+              , generateP
               , forward
               -- functions like as sigmoid
               , perceptronFunction
@@ -19,18 +20,19 @@ import Data.Array.Repa.Algorithms.Randomish
 import Util (fromList)
 
 -- h is activation function
-generate (w1, w2, bias, h) = neuron
+generateP (w1, w2, bias, h) = neuronP
   where
-    neuron x1 x2 = h tmp
+    neuronP x1 x2 = tmp
       where
         x, w :: R.Array R.U R.DIM2 Double
         x = fromList [[x1, x2]]
         w = fromList [[w1, w2]]
-        -- tmp = bias + R.sumAllS (R.computeUnboxedS (R.zipWith (*) x w))
-        tmp = runST $ do
+        tmp = do
           t <- R.computeUnboxedP (R.zipWith (*) x w)
           s <- R.sumAllP t
-          return $ bias + s
+          return $ h (bias + s)
+
+generate (w1, w2, bias, h) x1 x2 = runST (generateP (w1, w2, bias, h) x1 x2)
 
 perceptronFunction x | x <= 0    = 0
                      | otherwise = 1
