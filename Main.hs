@@ -30,7 +30,8 @@ rands :: R.Array R.U R.DIM1 Double
 rands = randomishDoubleArray (R.Z R.:. 10) 0.4 0.6 1
 
 plot :: (Double -> Double) -> (Double, Double) -> IO ()
-plot f (l, r) = plotPath [] $ zip <$> id <*> fmap f $ linearScale (round ((r - l)/4.0e-3)) (l, r)
+plot f (l, r) = plotPath [] $ zip <$> id <*> fmap f $ linearScale points (l, r)
+  where points = round ((r - l)/4.0e-3)
 
 plotSin :: IO ()
 plotSin = plot sin (0.0, 2*pi)
