@@ -26,13 +26,11 @@ generate (w1, w2, bias, h) = neuron
         x, w :: R.Array R.U R.DIM2 Double
         x = fromList [[x1, x2]]
         w = fromList [[w1, w2]]
-        tmp = bias + R.sumAllS (R.computeUnboxedS (R.zipWith (*) x w))
-        {--
+        -- tmp = bias + R.sumAllS (R.computeUnboxedS (R.zipWith (*) x w))
         tmp = runST $ do
-          t <- mmultP x w
+          t <- R.computeUnboxedP (R.zipWith (*) x w)
           s <- R.sumAllP t
           return $ bias + s
-        --}
 
 perceptronFunction x | x <= 0    = 0
                      | otherwise = 1
