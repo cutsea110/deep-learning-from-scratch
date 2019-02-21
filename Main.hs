@@ -47,6 +47,8 @@ b2 = R.fromListUnboxed (R.Z R.:. 1 R.:. 2) [0.1, 0.2]
 
 a = triple id x w1 b1
 z1 = triple sigmoidFunction x w1 b1
+a2 = triple id z1 w2 b2
+z2 = triple sigmoidFunction z1 w2 b2
 
 triple f x w b = runST $ do
   xw <- mmultP x w1
