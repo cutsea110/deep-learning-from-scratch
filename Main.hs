@@ -8,7 +8,7 @@ import Data.Array.Repa.Algorithms.Randomish
 import Graphics.Gnuplot.Simple
 
 import Perceptron
-import Neuron (perceptronFunction, sigmoidFunction)
+import Neuron (perceptronFunction, sigmoidFunction, stepFunction, reluFunction)
 
 x :: R.Array R.U R.DIM2 Double
 x = R.fromListUnboxed (R.Z R.:. 3 R.:. 2) [0..5]
@@ -41,3 +41,9 @@ plotPerceptron = plot perceptronFunction (-2.0, 2.0)
 
 plotSigmoid :: IO ()
 plotSigmoid = plot sigmoidFunction (-10.0, 10.0)
+
+plotStep :: IO ()
+plotStep = plot stepFunction (-2.0, 2.0)
+
+plotReLU :: IO ()
+plotReLU = plot reluFunction (-2.0, 5.0)
