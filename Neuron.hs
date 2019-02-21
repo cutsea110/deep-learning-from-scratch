@@ -42,9 +42,11 @@ sigmoidFunction x = 1 / (1 + exp (-x))
 
 reluFunction = max 0.0
 
-triple x (f, w, b) = runST $ do
+tripleP x (f, w, b) = do
   xw <- mmultP x w
   R.computeUnboxedP $ R.zipWith ((f.).(+)) xw b
+
+triple x (f, w, b) = runST (tripleP x (f, w, b))
 
 forward :: (Foldable t, R.Source r Double) =>
   R.Array R.U R.DIM2 Double
