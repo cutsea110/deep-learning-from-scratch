@@ -8,7 +8,7 @@ import Data.Array.Repa.Algorithms.Randomish
 import Graphics.Gnuplot.Simple
 
 import Perceptron
-import Neuron (perceptronFunction, sigmoidFunction, stepFunction, reluFunction)
+import Neuron (perceptronFunction, sigmoidFunction, stepFunction, reluFunction, triple)
 
 main :: IO ()
 main = do
@@ -51,13 +51,14 @@ b3 :: R.Array R.U R.DIM2 Double
 b3 = R.fromListUnboxed (R.Z R.:. 1 R.:. 2) [0.1, 0.2]
 
 
-a1 = triple id x w1 b1
-z1 = triple sigmoidFunction x w1 b1
-a2 = triple id z1 w2 b2
-z2 = triple sigmoidFunction z1 w2 b2
-a3 = triple id z2 w3 b3
-y = triple id z2 w3 b3
+a1 = triple id (w1, b1) x
+z1 = triple sigmoidFunction (w1, b1) x
+a2 = triple id (w2, b2) z1
+z2 = triple sigmoidFunction (w2, b2) z1
+a3 = triple id (w3, b3) z2
+y = triple id (w3, b3) z2
 
-triple f x w b = runST $ do
-  xw <- mmultP x w
-  R.computeUnboxedP $ R.zipWith ((f.).(+)) xw b1
+forward x =
+  let z1 = triple sigmoidFunction (w1, b1) x
+      z2 = triple sigmoidFunction (w2, b2) z1
+  in triple id (w3, b3) z2

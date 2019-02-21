@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Neuron where
 
 import Control.Monad
@@ -29,3 +30,7 @@ stepFunction x | x > 0     = 1
 sigmoidFunction x = 1 / (1 + exp (-x))
 
 reluFunction = max 0.0
+
+triple f (w, b) x = runST $ do
+  xw <- mmultP x w
+  R.computeUnboxedP $ R.zipWith ((f.).(+)) xw b
