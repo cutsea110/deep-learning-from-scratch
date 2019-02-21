@@ -3,6 +3,8 @@ module Neuron where
 
 import Control.Monad
 import Control.Monad.ST
+import Data.List (foldl')
+
 import qualified Data.Array.Repa as R
 import Data.Array.Repa.Algorithms.Matrix
 import Data.Array.Repa.Algorithms.Randomish
@@ -31,6 +33,12 @@ sigmoidFunction x = 1 / (1 + exp (-x))
 
 reluFunction = max 0.0
 
-triple f (w, b) x = runST $ do
+triple x (f, w, b) = runST $ do
   xw <- mmultP x w
   R.computeUnboxedP $ R.zipWith ((f.).(+)) xw b
+
+forward :: (Foldable t, R.Source r Double) =>
+  R.Array R.U R.DIM2 Double
+  -> t (Double -> Double, R.Array R.U R.DIM2 Double, R.Array r R.DIM2 Double)
+  -> R.Array R.U R.DIM2 Double
+forward = foldl' triple
