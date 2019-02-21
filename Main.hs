@@ -26,6 +26,9 @@ y = R.fromListUnboxed (R.Z R.:. 2 R.:. 2) [1..4]
 v1 :: R.Array R.U R.DIM2 Double
 v1 = R.fromListUnboxed (R.Z R.:. 2 R.:. 1) [5,6]
 
+v2 :: R.Array R.U R.DIM3 Double
+v2 = R.fromListUnboxed (R.Z R.:. 3 R.:. 2 R.:. 4) [1..24]
+
 rands :: R.Array R.U R.DIM1 Double
 rands = randomishDoubleArray (R.Z R.:. 10) 0.4 0.6 1
 
