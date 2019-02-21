@@ -39,4 +39,11 @@ w1 :: R.Array R.U R.DIM2 Double
 w1 = R.fromListUnboxed (R.Z R.:. 2 R.:. 3) [0.1, 0.3, 0.5, 0.2, 0.4, 0.6]
 b1 :: R.Array R.U R.DIM2 Double
 b1 = R.fromListUnboxed (R.Z R.:. 1 R.:. 3) [0.1, 0.2, 0.3]
-a = R.computeUnboxedS $ R.zipWith (+) (mmultS x w1) b1
+
+a = triple id
+z1 = triple sigmoidFunction
+
+triple f = runST $ do
+  xw <- mmultP x w1
+  R.computeUnboxedP $ R.zipWith ((f.).(+)) xw b1
+
