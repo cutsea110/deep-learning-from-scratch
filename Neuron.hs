@@ -48,7 +48,7 @@ reluFunction = max 0.0
 
 tripleP x (f, w, b) = do
   xw <- mmultP x w
-  R.computeUnboxedP $ R.map f $ R.zipWith (+) xw b
+  R.computeUnboxedP $ R.zipWith ((f.).(+)) xw b
 
 triple x (f, w, b) = runST (tripleP x (f, w, b))
 
