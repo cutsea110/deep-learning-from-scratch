@@ -16,7 +16,7 @@ import Neuron ( perceptronFunction
               , forward
               , triple
               )
-import qualified Util as U
+import Util as U
 
 main :: IO ()
 main = do
@@ -43,7 +43,7 @@ plotReLU :: IO ()
 plotReLU = plot reluFunction (-2.0, 5.0)
 
 x :: R.Array R.U R.DIM2 Double
-x = U.fromList [[1.0, 0.5]]
+x = fromList [[1.0, 0.5]]
 
 initNetwork = [ (sigmoidFunction, w1, b1)
               , (sigmoidFunction, w2, b2)
@@ -51,13 +51,13 @@ initNetwork = [ (sigmoidFunction, w1, b1)
               ]
   where
     w1, w2, w3 :: R.Array R.U R.DIM2 Double
-    w1 = U.fromList [[0.1, 0.3, 0.5], [0.2, 0.4, 0.6]]
-    w2 = U.fromList [[0.1, 0.4], [0.2, 0.5], [0.3, 0.6]]
-    w3 = U.fromList [[0.1, 0.3], [0.2, 0.4]]
+    w1 = fromList [[0.1, 0.3, 0.5], [0.2, 0.4, 0.6]]
+    w2 = fromList [[0.1, 0.4], [0.2, 0.5], [0.3, 0.6]]
+    w3 = fromList [[0.1, 0.3], [0.2, 0.4]]
     
     b1, b2, b3 :: R.Array R.U R.DIM2 Double
-    b1 = U.fromList [[0.1, 0.2, 0.3]]
-    b2 = U.fromList [[0.1, 0.2]]
-    b3 = U.fromList [[0.1, 0.2]]
+    b1 = fromList [[0.1, 0.2, 0.3]]
+    b2 = fromList [[0.1, 0.2]]
+    b3 = fromList [[0.1, 0.2]]
 
 test = forward x initNetwork
