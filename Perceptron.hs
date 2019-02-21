@@ -1,4 +1,8 @@
-module Perceptron where
+module Perceptron ( pAND
+                  , pNAND
+                  , pOR
+                  , pXOR
+                  ) where
 
 import Neuron (generate, perceptronFunction, stepFunction, sigmoidFunction, reluFunction)
 
