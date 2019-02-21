@@ -50,3 +50,12 @@ plotStep = plot stepFunction (-2.0, 2.0)
 
 plotReLU :: IO ()
 plotReLU = plot reluFunction (-2.0, 5.0)
+
+x1, x2 :: R.Array R.U R.DIM2 Double
+-- x1 = R.fromListUnboxed (R.Z R.:. 2 R.:. 2) [1..4]
+-- x2 = R.fromListUnboxed (R.Z R.:. 2 R.:. 2) [5..8]
+x1 = R.fromListUnboxed (R.Z R.:. 2 R.:. 3) [1..6]
+x2 = R.fromListUnboxed (R.Z R.:. 3 R.:. 2) [1..6]
+-- R.rank $ R.extent $ mmultS x1 x2
+
+
