@@ -4,6 +4,7 @@ module Neuron ( generate
               , triple
               , tripleP
               , forward
+              , forwardP
               -- functions like as sigmoid
               , perceptronFunction
               , stepFunction
@@ -57,3 +58,9 @@ forward :: (Foldable t, R.Source r Double) =>
   -> t (Double -> Double, R.Array R.U R.DIM2 Double, R.Array r R.DIM2 Double)
   -> R.Array R.U R.DIM2 Double
 forward = foldl' triple
+
+forwardP :: (Monad m, Foldable t, R.Source r Double) =>
+  R.Array R.U R.DIM2 Double
+  -> t (Double -> Double, R.Array R.U R.DIM2 Double, R.Array r R.DIM2 Double)
+  -> m (R.Array R.U R.DIM2 Double)
+forwardP = foldM tripleP

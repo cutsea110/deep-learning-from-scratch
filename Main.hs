@@ -1,12 +1,15 @@
 module Main where
 
-import Neuron (sigmoidFunction, forward)
+import Neuron (sigmoidFunction, forward, forwardP)
 import Util (fromList)
 
 main :: IO ()
 main = do
-  putStrLn "This is sample of Repa."
+  putStrLn "forward..."
   print $ forward x initNetwork
+  putStrLn "forwardP..."
+  s <- forwardP x initNetwork
+  print s
 
 x = fromList [[1.0, 0.5]]
 
