@@ -9,14 +9,16 @@ import qualified Data.Array.Repa as R
 import Data.Array.Repa.Algorithms.Matrix
 import Data.Array.Repa.Algorithms.Randomish
 
+import qualified Util as U
+
 -- h is activation function
 generate (w1, w2, bias, h) = neuron
   where
     neuron x1 x2 = h tmp
       where
         x, w :: R.Array R.U R.DIM2 Double
-        x = R.fromListUnboxed (R.Z R.:. 2 R.:. 1) [x1, x2]
-        w = R.fromListUnboxed (R.Z R.:. 2 R.:. 1) [w1, w2]
+        x = U.fromList [[x1, x2]]
+        w = U.fromList [[w1, w2]]
         -- tmp = b + R.sumAllS (mmultS x w)
         tmp = runST $ do
           t <- mmultP x w
