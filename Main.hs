@@ -59,5 +59,5 @@ a3 = triple id z2 w3 b3
 y = triple id z2 w3 b3
 
 triple f x w b = runST $ do
-  xw <- mmultP x w1
+  xw <- mmultP x w
   R.computeUnboxedP $ R.zipWith ((f.).(+)) xw b1
