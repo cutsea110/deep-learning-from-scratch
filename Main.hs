@@ -29,11 +29,14 @@ v1 = R.fromListUnboxed (R.Z R.:. 2 R.:. 1) [5,6]
 rands :: R.Array R.U R.DIM1 Double
 rands = randomishDoubleArray (R.Z R.:. 10) 0.4 0.6 1
 
+plot :: (Double -> Double) -> (Double, Double) -> IO ()
+plot f (l, r) = plotPath [] $ zip <$> id <*> fmap f $ linearScale (round ((r - l)/4.0e-3)) (l, r)
+
 plotSin :: IO ()
-plotSin = plotPath [(Title "Sin")] $ zip <$> id <*> fmap sin $ linearScale 1000 (0.0 :: Double, 2*pi)
+plotSin = plot sin (0.0, 2*pi)
 
 plotPerceptron :: IO ()
-plotPerceptron = plotPath [(Title "Perceptron")] $ zip <$> id <*> fmap perceptronFunction $ linearScale 1000 (-2.0 :: Double, 2.0)
+plotPerceptron = plot perceptronFunction (-2.0, 2.0)
 
 plotSigmoid :: IO ()
-plotSigmoid = plotPath [(Title "Sigmoid")] $ zip <$> id <*> fmap sigmoidFunction $ linearScale 10000 (-10.0 :: Double, 10.0)
+plotSigmoid = plot sigmoidFunction (-10.0, 10.0)
