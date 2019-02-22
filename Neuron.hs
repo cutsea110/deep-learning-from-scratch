@@ -48,11 +48,14 @@ reluFunction = max 0.0
 
 softmax xs = R.computeUnboxedS $ R.map (/ttl) xs'
   where
-    (xs', ttl) = (R.map exp xs, R.sumAllS xs')
+    maxVal = (R.foldS max (-1/0) xs) R.! (R.Z R.:.0)
+    (xs', ttl) = (R.map (\x -> exp (x - maxVal)) xs, R.sumAllS xs')
 
 softmaxP xs = do
-  xs' <- R.computeUnboxedP $ R.map exp xs
-  let ttl = R.sumAllS $ xs'
+  mv <- R.foldP max (-1/0) xs
+  let maxVal = mv R.! (R.Z R.:.0)
+  xs' <- R.computeUnboxedP $ R.map (\x -> exp (x - maxVal)) xs
+  let ttl = R.sumAllS xs'
   R.computeUnboxedP $ R.map (/ttl) xs'
 
 tripleP x (f, w, b) = do
