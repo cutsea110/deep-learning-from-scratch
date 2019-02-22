@@ -13,11 +13,11 @@ import System.Directory (createDirectoryIfMissing)
 
 baseURL = "http://yann.lecun.com/exdb/mnist"
 assetsDir = "assets"
-files = [ ("train_image", "train-images-idx3-ubyte.gz")
-        , ("train_label", "train-labels-idx1-ubyte.gz")
-        , ("test_image", "t10k-images-idx3-ubyte.gz")
-        , ("test_label", "t10k-labels-idx1-ubyte.gz")
-        ]
+keyFiles = [ ("train_image", "train-images-idx3-ubyte.gz")
+           , ("train_label", "train-labels-idx1-ubyte.gz")
+           , ("test_image", "t10k-images-idx3-ubyte.gz")
+           , ("test_label", "t10k-labels-idx1-ubyte.gz")
+           ]
 
 download f = do
   let savePath = assetsDir ++ "/" ++ f
@@ -26,7 +26,11 @@ download f = do
   where
     mkReq f = parseRequest $ baseURL ++ "/" ++ f
 
+downloadMnist = do
+  forM_ keyFiles $ \(_, f) -> do
+    download f
+
 main = do
   createDirectoryIfMissing True assetsDir
-  forM_ files $ \(_, f) -> do
-    download f
+  downloadMnist
+  
