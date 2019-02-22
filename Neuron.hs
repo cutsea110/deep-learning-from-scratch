@@ -52,7 +52,7 @@ softmax xs = R.computeUnboxedS $ R.map (/ttl) xs'
 
 softmaxP xs = do
   xs' <- R.computeUnboxedP $ R.map exp xs
-  ttl <- R.sumAllP xs'
+  let ttl = R.sumAllS $ xs'
   R.computeUnboxedP $ R.map (/ttl) xs'
 
 tripleP x (f, w, b) = do
