@@ -50,6 +50,11 @@ softmax xs = R.computeUnboxedS $ R.map (/ttl) xs'
   where
     (xs', ttl) = (R.map exp xs, R.sumAllS xs')
 
+softmaxP xs = do
+  xs' <- R.computeUnboxedP $ R.map exp xs
+  ttl <- R.sumAllP xs'
+  R.computeUnboxedP $ R.map (/ttl) xs'
+
 tripleP x (f, w, b) = do
   xw <- mmultP x w
   R.computeUnboxedP $ R.zipWith ((f.).(+)) xw b
