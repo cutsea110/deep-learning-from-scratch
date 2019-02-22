@@ -46,6 +46,11 @@ sigmoidFunction x = 1 / (1 + exp (-x))
 
 reluFunction = max 0.0
 
+softmax xs = R.computeUnboxedS $ R.map (/ttl) xs'
+  where
+    xs' = R.map exp xs
+    ttl = R.sumAllS xs'
+
 tripleP x (f, w, b) = do
   xw <- mmultP x w
   R.computeUnboxedP $ R.zipWith ((f.).(+)) xw b
