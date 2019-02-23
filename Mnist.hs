@@ -9,7 +9,8 @@ import qualified Codec.Compression.GZip as GZ ( compress
                                               )
 import qualified Data.Array.Repa as R
 import qualified Data.ByteString.Lazy as BL
-import Data.List (foldl')
+import Data.Bool (bool)
+import Data.List (foldl', unfoldr)
 import Network.HTTP.Simple ( parseRequest
                            , httpLBS
                            , getResponseBody
@@ -71,6 +72,14 @@ loadLabel bs = do
 
 imageAt :: R.Array R.U R.DIM2 Double -> Int -> R.Array R.U (R.Z R.:. Int) Double
 imageAt imgs i = R.computeUnboxedS $ R.slice imgs (R.Any R.:. i R.:. R.All)
+
+drawAA :: R.Array R.U (R.Z R.:. Int) Double -> IO ()
+drawAA xs = forM_ (toMatrix $ R.toList xs) prLn
+  where
+    toMatrix = unfoldr (bool <$> (Just . (splitAt 28)) <*> (const Nothing) <*> null)
+    prLn ln = forM_ ln prCol >> putStrLn ""
+    prCol d | d == 0 = putChar ' '
+            | otherwise = putChar '#'
 
 main = do
   createDirectoryIfMissing True assetsDir
