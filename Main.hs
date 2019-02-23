@@ -1,7 +1,18 @@
 module Main where
 
+import Mnist (downloadMnist, loadTrain, loadTest)
 import Neuron (sigmoidFunction, forward, forwardP)
 import Util (fromList)
+
+prepareMnist = do
+  downloadMnist
+
+  (xl, xi) <- loadTrain
+  (tl, ti) <- loadTest
+
+  -- TODO: store Array as Pickle like
+
+  print "Done."
 
 main :: IO ()
 main = do

@@ -1,5 +1,8 @@
 {-# LANGUAGE FlexibleContexts, TypeOperators #-}
-module Mnist where
+module Mnist ( downloadMnist
+             , loadTrain
+             , loadTest
+             ) where
 
 import GHC.Int
 import Control.Arrow ((&&&),(***))
@@ -35,6 +38,7 @@ download f = do
     mkReq = parseRequest . mkURL
 
 downloadMnist = do
+  createDirectoryIfMissing True assetsDir
   putStr "Downloading... "
   forM_ keyFiles $ \(_, f) -> do
     download f
@@ -103,12 +107,3 @@ loadWith (lblFile, imgFile) = do
 
 loadTrain = loadWith ("train-labels-idx1-ubyte.gz", "train-images-idx3-ubyte.gz")
 loadTest  = loadWith ("t10k-labels-idx1-ubyte.gz", "t10k-images-idx3-ubyte.gz")
-
-main = do
-  createDirectoryIfMissing True assetsDir
-  downloadMnist
-
-  (xl, xi) <- loadTrain
-  (tl, ti) <- loadTest
-
-  print "Done."
