@@ -18,13 +18,14 @@ import qualified Data.Array.Repa as R
 import qualified Data.ByteString.Lazy as BL
 import Data.Bool (bool)
 import Data.List (foldl', unfoldr)
+import Data.Word
 import Network.HTTP.Simple ( parseRequest
                            , httpLBS
                            , getResponseBody
                            )
 import System.Directory (createDirectoryIfMissing)
 
-type DataSet = (Matrix Double, Matrix Double)
+type DataSet = (Matrix Word8, Matrix Word8)
 type Matrix a = R.Array R.U R.DIM2 a
 type Vector a = R.Array R.U (R.Z R.:. Int) a
 
@@ -52,16 +53,16 @@ downloadMnist = do
     download f
   putStrLn "Done."
   
-toDoubleList :: BL.ByteString -> [Double]
-toDoubleList = map (read . show . fromEnum) . BL.unpack
+toWord8List :: BL.ByteString -> [Word8]
+toWord8List = map (read . show . fromEnum) . BL.unpack
 
 toInt :: Integral a => BL.ByteString -> a
-toInt = round . foldl' (\b a -> b * 256 + a) 0 . toDoubleList
+toInt = foldl' (\b a -> b * 256 + fromIntegral a) 0 . toWord8List
 
 mnistImage = 2051
 mnistLabel = 2049
 
-load :: String -> IO (Matrix Double)
+load :: String -> IO (Matrix Word8)
 load f = do
     bs <- fmap GZ.decompress (BL.readFile $ mkPath f)
     let (typ,  r) = toInt *** id $ BL.splitAt 4 bs
@@ -71,26 +72,26 @@ load f = do
       then loadLabel r
       else error $ "Unknown format " ++ show typ
 
-loadImage :: BL.ByteString -> IO (Matrix Double)
+loadImage :: BL.ByteString -> IO (Matrix Word8)
 loadImage bs = do
   let (cnt, r) = toInt *** id $ BL.splitAt 4 bs
       (w,  r') = toInt *** id $ BL.splitAt 4 r
       (h, r'') = toInt *** id $ BL.splitAt 4 r'
       sz = w * h
-  return $ R.fromListUnboxed (R.Z R.:. cnt R.:. sz) $ toDoubleList r''
+  return $ R.fromListUnboxed (R.Z R.:. cnt R.:. sz) $ toWord8List r''
 
-loadLabel :: BL.ByteString -> IO (Matrix Double)
+loadLabel :: BL.ByteString -> IO (Matrix Word8)
 loadLabel bs = do
   let (cnt, r) = toInt *** id $ BL.splitAt 4 bs
-  return $ R.fromListUnboxed (R.Z R.:. cnt R.:. 1) $ toDoubleList r
+  return $ R.fromListUnboxed (R.Z R.:. cnt R.:. 1) $ toWord8List r
 
-imageAt :: Matrix Double -> Int -> Vector Double
+imageAt :: Matrix Word8 -> Int -> Vector Word8
 imageAt imgs i = R.computeUnboxedS $ R.slice imgs (R.Any R.:. i R.:. R.All)
 
-labelAt :: Matrix Double -> Int -> Vector Double
+labelAt :: Matrix Word8 -> Int -> Vector Word8
 labelAt lbls i = R.computeUnboxedS $ R.slice lbls (R.Any R.:. i R.:. R.All)
 
-drawAA :: Vector Double -> IO ()
+drawAA :: Vector Word8 -> IO ()
 drawAA xs = forM_ (toMatrix $ R.toList xs) prLn
   where
     toMatrix = unfoldr (bool <$> (Just . (splitAt 28)) <*> (const Nothing) <*> null)
@@ -103,9 +104,9 @@ draw ds i = do
   let (lbl, img) = (`labelAt` i) *** (`imageAt` i) $ ds
   putStrLn $ "Sample " ++ show i
   drawAA img
-  putStrLn $ "Answer " ++ show (round $ lbl R.! (R.Z R.:.0))
+  putStrLn $ "Answer " ++ show (lbl R.! (R.Z R.:.0))
 
-loadWith :: (String, String) -> IO (Matrix Double, Matrix Double)
+loadWith :: (String, String) -> IO (Matrix Word8, Matrix Word8)
 loadWith (lblFile, imgFile) = do
   putStr "Loading... "
   xl <- load lblFile
@@ -114,7 +115,7 @@ loadWith (lblFile, imgFile) = do
   putStrLn "Done."
   return (xl, xi)
 
-loadTrain :: IO (Matrix Double, Matrix Double)
+loadTrain :: IO (Matrix Word8, Matrix Word8)
 loadTrain = loadWith ("train-labels-idx1-ubyte.gz", "train-images-idx3-ubyte.gz")
-loadTest :: IO (Matrix Double, Matrix Double)
+loadTest :: IO (Matrix Word8, Matrix Word8)
 loadTest  = loadWith ("t10k-labels-idx1-ubyte.gz", "t10k-images-idx3-ubyte.gz")
