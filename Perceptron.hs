@@ -4,12 +4,13 @@ module Perceptron ( pAND
                   , pXOR
                   ) where
 
-import Neuron (generate, perceptronFunction, stepFunction, sigmoidFunction, reluFunction)
+import Activation (perceptron, step, sigmoid, relu)
+import Neuron (generate)
 
-genPerceptron (w1, w2, bias) = generate (w1, w2, bias, perceptronFunction)
-genSteperon (w1, w2, bias) = generate (w1, w2, bias, stepFunction)
-genNeuron (w1, w2, bias) = generate (w1, w2, bias, sigmoidFunction)
-genReLU (w1, w2, bias) = generate (w1, w2, bias, reluFunction)
+genPerceptron (w1, w2, bias) = generate (w1, w2, bias, perceptron)
+genSteperon (w1, w2, bias) = generate (w1, w2, bias, step)
+genNeuron (w1, w2, bias) = generate (w1, w2, bias, sigmoid)
+genReLU (w1, w2, bias) = generate (w1, w2, bias, relu)
 
 pAND  = genPerceptron ( 0.5,  0.5, -0.7)
 pNAND = genPerceptron (-0.5, -0.5,  0.7)

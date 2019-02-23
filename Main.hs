@@ -1,7 +1,8 @@
 module Main where
 
-import Mnist (downloadMnist, loadTrain, loadTest)
-import Neuron (sigmoidFunction, forward, forwardP)
+import Activation (sigmoid)
+import Mnist (downloadMnist, loadTrain, loadTest, draw)
+import Neuron (forward, forwardP)
 import Util (fromList)
 
 prepareMnist = do
@@ -24,8 +25,8 @@ main = do
 
 x = fromList [[1.0, 0.5]]
 
-initNetwork = [ (sigmoidFunction, w1, b1)
-              , (sigmoidFunction, w2, b2)
+initNetwork = [ (sigmoid, w1, b1)
+              , (sigmoid, w2, b2)
               , (id, w3, b3)
               ]
   where

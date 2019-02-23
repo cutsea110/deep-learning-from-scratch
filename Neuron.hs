@@ -5,11 +5,6 @@ module Neuron ( generate
               , tripleP
               , forward
               , forwardP
-              -- functions like as sigmoid
-              , perceptronFunction
-              , stepFunction
-              , sigmoidFunction
-              , reluFunction
               ) where
 
 import Control.Monad
@@ -19,6 +14,7 @@ import Data.List (foldl')
 import qualified Data.Array.Repa as R
 import Data.Array.Repa.Algorithms.Matrix
 
+import Activation
 import Util (fromList)
 
 -- h is activation function
@@ -35,28 +31,6 @@ generateP (w1, w2, bias, h) = neuronP
           return $ h (bias + s)
 
 generate (w1, w2, bias, h) x1 x2 = runST (generateP (w1, w2, bias, h) x1 x2)
-
-perceptronFunction x | x <= 0    = 0
-                     | otherwise = 1
-
-stepFunction x | x > 0     = 1
-               | otherwise = 0
-
-sigmoidFunction x = 1 / (1 + exp (-x))
-
-reluFunction = max 0.0
-
-softmax xs = R.computeUnboxedS $ R.map (/ttl) xs'
-  where
-    maxVal = (R.foldS max (-1/0) xs) R.! (R.Z R.:.0)
-    (xs', ttl) = (R.map (exp . subtract maxVal) xs, R.sumAllS xs')
-
-softmaxP xs = do
-  mv <- R.foldP max (-1/0) xs
-  let maxVal = mv R.! (R.Z R.:.0)
-  xs' <- R.computeUnboxedP $ R.map (exp . subtract maxVal) xs
-  let ttl = R.sumAllS xs'
-  R.computeUnboxedP $ R.map (/ttl) xs'
 
 tripleP x (f, w, b) = do
   xw <- mmultP x w
