@@ -43,13 +43,16 @@ toDoubleList = map (read . show . fromEnum) . BL.unpack
 toInt :: Integral a => BL.ByteString -> a
 toInt = round . foldl' (\b a -> b * 256 + a) 0 . toDoubleList
 
+mnistImage = 2051
+mnistLabel = 2049
+
 load :: String -> IO ((R.Array R.U R.DIM2) Double)
 load f = do
     bs <- fmap GZ.decompress (BL.readFile $ mkPath f)
     let (typ,  r) = toInt *** id $ BL.splitAt 4 bs
-    if typ == 2051
+    if typ == mnistImage
       then loadImage r
-      else if typ == 2049
+      else if typ == mnistLabel
       then loadLabel r
       else error $ "Unknown format " ++ show typ
 
@@ -66,6 +69,14 @@ loadLabel bs = do
   let (cnt, r) = toInt *** id $ BL.splitAt 4 bs
   return $ R.fromListUnboxed (R.Z R.:. cnt R.:. 1) $ toDoubleList r
 
+imageAt :: R.Array R.U R.DIM2 Double -> Int -> R.Array R.U (R.Z R.:. Int) Double
+imageAt imgs i = R.computeUnboxedS $ R.slice imgs (R.Any R.:. i R.:. R.All)
+
 main = do
   createDirectoryIfMissing True assetsDir
   downloadMnist
+
+  xi <- load "train-images-idx3-ubyte.gz"
+  xl <- load "train-labels-idx1-ubyte.gz"
+  
+  print "Done."
