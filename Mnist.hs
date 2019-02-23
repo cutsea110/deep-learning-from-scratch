@@ -2,6 +2,10 @@
 module Mnist ( downloadMnist
              , loadTrain
              , loadTest
+               --
+             , draw
+             , imageAt
+             , labelAt
              ) where
 
 import GHC.Int
@@ -19,6 +23,10 @@ import Network.HTTP.Simple ( parseRequest
                            , getResponseBody
                            )
 import System.Directory (createDirectoryIfMissing)
+
+type DataSet = (Matrix Double, Matrix Double)
+type Matrix a = R.Array R.U R.DIM2 a
+type Vector a = R.Array R.U (R.Z R.:. Int) a
 
 baseURL = "http://yann.lecun.com/exdb/mnist"
 assetsDir = "assets"
@@ -53,7 +61,7 @@ toInt = round . foldl' (\b a -> b * 256 + a) 0 . toDoubleList
 mnistImage = 2051
 mnistLabel = 2049
 
-load :: String -> IO ((R.Array R.U R.DIM2) Double)
+load :: String -> IO (Matrix Double)
 load f = do
     bs <- fmap GZ.decompress (BL.readFile $ mkPath f)
     let (typ,  r) = toInt *** id $ BL.splitAt 4 bs
@@ -63,7 +71,7 @@ load f = do
       then loadLabel r
       else error $ "Unknown format " ++ show typ
 
-loadImage :: BL.ByteString -> IO ((R.Array R.U R.DIM2) Double)
+loadImage :: BL.ByteString -> IO (Matrix Double)
 loadImage bs = do
   let (cnt, r) = toInt *** id $ BL.splitAt 4 bs
       (w,  r') = toInt *** id $ BL.splitAt 4 r
@@ -71,18 +79,18 @@ loadImage bs = do
       sz = w * h
   return $ R.fromListUnboxed (R.Z R.:. cnt R.:. sz) $ toDoubleList r''
 
-loadLabel :: BL.ByteString -> IO ((R.Array R.U R.DIM2) Double)
+loadLabel :: BL.ByteString -> IO (Matrix Double)
 loadLabel bs = do
   let (cnt, r) = toInt *** id $ BL.splitAt 4 bs
   return $ R.fromListUnboxed (R.Z R.:. cnt R.:. 1) $ toDoubleList r
 
-imageAt :: R.Array R.U R.DIM2 Double -> Int -> R.Array R.U (R.Z R.:. Int) Double
+imageAt :: Matrix Double -> Int -> Vector Double
 imageAt imgs i = R.computeUnboxedS $ R.slice imgs (R.Any R.:. i R.:. R.All)
 
-labelAt :: R.Array R.U R.DIM2 Double -> Int -> R.Array R.U (R.Z R.:. Int) Double
+labelAt :: Matrix Double -> Int -> Vector Double
 labelAt lbls i = R.computeUnboxedS $ R.slice lbls (R.Any R.:. i R.:. R.All)
 
-drawAA :: R.Array R.U (R.Z R.:. Int) Double -> IO ()
+drawAA :: Vector Double -> IO ()
 drawAA xs = forM_ (toMatrix $ R.toList xs) prLn
   where
     toMatrix = unfoldr (bool <$> (Just . (splitAt 28)) <*> (const Nothing) <*> null)
@@ -90,13 +98,14 @@ drawAA xs = forM_ (toMatrix $ R.toList xs) prLn
     prCol d | d == 0 = putChar '.'
             | otherwise = putChar '#'
 
-draw :: (R.Array R.U R.DIM2 Double, R.Array R.U R.DIM2 Double) -> Int -> IO ()
-draw (lbls, imgs) i = do
-  let (lbl, img) = (labelAt lbls i, imageAt imgs i)
+draw :: DataSet -> Int -> IO ()
+draw ds i = do
+  let (lbl, img) = (`labelAt` i) *** (`imageAt` i) $ ds
   putStrLn $ "Sample " ++ show i
   drawAA img
   putStrLn $ "Answer " ++ show (round $ lbl R.! (R.Z R.:.0))
 
+loadWith :: (String, String) -> IO (Matrix Double, Matrix Double)
 loadWith (lblFile, imgFile) = do
   putStr "Loading... "
   xl <- load lblFile
@@ -105,5 +114,7 @@ loadWith (lblFile, imgFile) = do
   putStrLn "Done."
   return (xl, xi)
 
+loadTrain :: IO (Matrix Double, Matrix Double)
 loadTrain = loadWith ("train-labels-idx1-ubyte.gz", "train-images-idx3-ubyte.gz")
+loadTest :: IO (Matrix Double, Matrix Double)
 loadTest  = loadWith ("t10k-labels-idx1-ubyte.gz", "t10k-images-idx3-ubyte.gz")
