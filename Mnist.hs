@@ -93,19 +93,22 @@ draw (lbls, imgs) i = do
   drawAA img
   putStrLn $ "Answer " ++ show (round $ lbl R.! (R.Z R.:.0))
 
-loadTrain = do
+loadWith (lblFile, imgFile) = do
   putStr "Loading... "
-  xl <- load "train-labels-idx1-ubyte.gz"
-  xi <- load "train-images-idx3-ubyte.gz"
+  xl <- load lblFile
+  xi <- load imgFile
   draw (xl, xi) 0
   putStrLn "Done."
-
   return (xl, xi)
+
+loadTrain = loadWith ("train-labels-idx1-ubyte.gz", "train-images-idx3-ubyte.gz")
+loadTest  = loadWith ("t10k-labels-idx1-ubyte.gz", "t10k-images-idx3-ubyte.gz")
 
 main = do
   createDirectoryIfMissing True assetsDir
   downloadMnist
 
   (xl, xi) <- loadTrain
+  (tl, ti) <- loadTest
 
   print "Done."
