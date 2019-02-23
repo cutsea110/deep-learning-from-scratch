@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts, TypeOperators #-}
 module Mnist where
 
 import GHC.Int
@@ -35,9 +35,11 @@ download f = do
     mkReq = parseRequest . mkURL
 
 downloadMnist = do
+  putStr "Downloading... "
   forM_ keyFiles $ \(_, f) -> do
     download f
-
+  putStrLn "Done."
+  
 toDoubleList :: BL.ByteString -> [Double]
 toDoubleList = map (read . show . fromEnum) . BL.unpack
 
@@ -73,19 +75,37 @@ loadLabel bs = do
 imageAt :: R.Array R.U R.DIM2 Double -> Int -> R.Array R.U (R.Z R.:. Int) Double
 imageAt imgs i = R.computeUnboxedS $ R.slice imgs (R.Any R.:. i R.:. R.All)
 
+labelAt :: R.Array R.U R.DIM2 Double -> Int -> R.Array R.U (R.Z R.:. Int) Double
+labelAt lbls i = R.computeUnboxedS $ R.slice lbls (R.Any R.:. i R.:. R.All)
+
 drawAA :: R.Array R.U (R.Z R.:. Int) Double -> IO ()
 drawAA xs = forM_ (toMatrix $ R.toList xs) prLn
   where
     toMatrix = unfoldr (bool <$> (Just . (splitAt 28)) <*> (const Nothing) <*> null)
     prLn ln = forM_ ln prCol >> putStrLn ""
-    prCol d | d == 0 = putChar ' '
+    prCol d | d == 0 = putChar '.'
             | otherwise = putChar '#'
+
+draw :: (R.Array R.U R.DIM2 Double, R.Array R.U R.DIM2 Double) -> Int -> IO ()
+draw (lbls, imgs) i = do
+  let (lbl, img) = (labelAt lbls i, imageAt imgs i)
+  putStrLn $ "Sample " ++ show i
+  drawAA img
+  putStrLn $ "Answer " ++ show (round $ lbl R.! (R.Z R.:.0))
+
+loadTrain = do
+  putStr "Loading... "
+  xl <- load "train-labels-idx1-ubyte.gz"
+  xi <- load "train-images-idx3-ubyte.gz"
+  draw (xl, xi) 0
+  putStrLn "Done."
+
+  return (xl, xi)
 
 main = do
   createDirectoryIfMissing True assetsDir
   downloadMnist
 
-  xi <- load "train-images-idx3-ubyte.gz"
-  xl <- load "train-labels-idx1-ubyte.gz"
-  
+  (xl, xi) <- loadTrain
+
   print "Done."
