@@ -1,5 +1,10 @@
 {-# LANGUAGE TypeOperators #-}
 module Util ( fromList
+            -- operators like breadcast
+            , (+#)
+            , (-#)
+            , (*#)
+            , (/#)
             ) where
 
 import qualified Data.Array.Repa as R
@@ -11,27 +16,6 @@ sizeOf x = R.size $ R.extent x
 fromList xs = R.fromListUnboxed (R.Z R.:. r R.:. c) $ concat xs
   where
     (r, c) = (length xs, length (head xs))
-{--
-adjust :: (R.Shape sh1, R.Shape sh2, R.Source r1 a1, R.Source r2 a2) =>
-          R.Array r1 sh1 a1
-       -> R.Array r2 sh2 a2
-       -> ((R.Array R.D (R.Z R.:. Int) a1, R.Z R.:. Int, Int),
-           (R.Array R.D (R.Z R.:. Int) a2, R.Z R.:. Int, Int))
-adjust x1 x2 = ((f1, sh1, s1), (f2, sh2, s2))
-  where
-    (s1, s2) = (sizeOf x1, sizeOf x2)
-    lcm' = lcm s1 s2
-    (t1, t2) = (lcm' `div` s1, lcm' `div` s2)
-    sh = R.Z R.:. lcm'
-    (sh1, sh2) = (R.Z R.:. s1, R.Z R.:. s2)
-    f1 = R.fromFunction sh (\ix -> (R.reshape sh1 x1) R.! (R.Z R.:. (R.size ix `mod` s1)))
-    f2 = R.fromFunction sh (\ix -> (R.reshape sh2 x2) R.! (R.Z R.:. (R.size ix `mod` s2)))
-
-x1 $+$ x2 = R.reshape sh $ x1' R.+^ x2'
-  where
-    sh = if s1 >= s2 then sh1 else sh2
-    ((x1', sh1, s1), (x2', sh2, s2)) = adjust x1 x2
---}
 
 adjust :: (R.Source r1 a1, R.Source r2 a2, R.Shape sh1, R.Shape sh2, R.Shape sh3) =>
           R.Array r1 sh1 a1 -> R.Array r2 sh2 a2 -> (R.Array R.D sh3 a1, R.Array R.D sh3 a2)
@@ -50,6 +34,24 @@ adjust x1 x2 = (f1, f2)
     f1 = R.fromFunction sh (\ix -> x1 R.! (R.shapeOfList (take r1 (zipWith div (R.listOfShape ix) t1s))))
     f2 = R.fromFunction sh (\ix -> x2 R.! (R.shapeOfList (take r2 (zipWith div (R.listOfShape ix) t2s))))
 
+infixl 6 +#, -#
+infixl 7 *#, /#
+
+x +# y = f R.+^ g 
+  where
+    (f, g) = adjust x y
+
+x -# y = f R.-^ g 
+  where
+    (f, g) = adjust x y
+
+x *# y = f R.*^ g 
+  where
+    (f, g) = adjust x y
+
+x /# y = f R./^ g 
+  where
+    (f, g) = adjust x y
 
 x :: R.Array R.U (R.Z R.:. Int) Double
 x =  R.fromListUnboxed (R.Z R.:. 2) [1.0, 0.5]
