@@ -33,7 +33,9 @@ x1 $+$ x2 = R.reshape sh $ x1' R.+^ x2'
     ((x1', sh1, s1), (x2', sh2, s2)) = adjust x1 x2
 --}
 
-adjust x1 x2 = dims
+adjust :: (R.Source r1 a1, R.Source r2 a2, R.Shape sh1, R.Shape sh2, R.Shape sh3) =>
+          R.Array r1 sh1 a1 -> R.Array r2 sh2 a2 -> (R.Array R.D sh3 a1, R.Array R.D sh3 a2)
+adjust x1 x2 = (f1, f2)
   where
     (sh1, sh2) = (R.extent x1, R.extent x2)
     (r1, r2) = (R.rank sh1, R.rank sh2)
@@ -44,9 +46,18 @@ adjust x1 x2 = dims
           | a == b                  = a
           | otherwise               = error "Unmatch dimensions."
     (dims, t1s, t2s) = (zipWith p d1' d2', zipWith div dims d1', zipWith div dims d2')
+    sh = R.shapeOfList dims
+    f1 = R.fromFunction sh (\ix -> x1 R.! (R.shapeOfList (take r1 (zipWith div (R.listOfShape ix) t1s))))
+    f2 = R.fromFunction sh (\ix -> x2 R.! (R.shapeOfList (take r2 (zipWith div (R.listOfShape ix) t2s))))
+
 
 x :: R.Array R.U (R.Z R.:. Int) Double
 x =  R.fromListUnboxed (R.Z R.:. 2) [1.0, 0.5]
+x' :: R.Array R.U (R.Z R.:. Int R.:. Int) Int
+x' =  R.fromListUnboxed (R.Z R.:. 2 R.:. 1) [10, 20]
+x'' :: R.Array R.U (R.Z R.:. Int) Int
+x'' =  R.fromListUnboxed (R.Z R.:. 2) [1, 2]
+
 x1 :: R.Array R.U (R.Z R.:. Int) Int
 x1 = R.fromListUnboxed (R.Z R.:. 3) [0..2]
 x2 :: R.Array R.U (R.Z R.:. Int R.:. Int) Int
@@ -66,5 +77,3 @@ y2 :: R.Array R.U (R.Z R.:. Int R.:. Int) Int
 y2 = R.fromListUnboxed (R.Z R.:. 2 R.:. 3) [2,4,6,8,10,12]
 z2 :: R.Array R.U (R.Z R.:. Int R.:. Int R.:. Int) Int
 z2 = R.fromListUnboxed (R.Z R.:. 4 R.:. 1 R.:. 1) [10,100,1000,10000]
-
-
