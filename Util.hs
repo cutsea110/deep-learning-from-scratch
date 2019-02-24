@@ -33,7 +33,7 @@ x1 $+$ x2 = R.reshape sh $ x1' R.+^ x2'
     ((x1', sh1, s1), (x2', sh2, s2)) = adjust x1 x2
 --}
 
-adjust x1 x2 = zipWith p d1' d2'
+adjust x1 x2 = dims
   where
     (sh1, sh2) = (R.extent x1, R.extent x2)
     (r1, r2) = (R.rank sh1, R.rank sh2)
@@ -43,7 +43,8 @@ adjust x1 x2 = zipWith p d1' d2'
           | a < b && b `mod` a == 0 = b
           | a == b                  = a
           | otherwise               = error "Unmatch dimensions."
-    
+    (dims, t1s, t2s) = (zipWith p d1' d2', zipWith div dims d1', zipWith div dims d2')
+
 x :: R.Array R.U (R.Z R.:. Int) Double
 x =  R.fromListUnboxed (R.Z R.:. 2) [1.0, 0.5]
 x1 :: R.Array R.U (R.Z R.:. Int) Int
