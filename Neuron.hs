@@ -15,7 +15,7 @@ import qualified Data.Array.Repa as R
 import Data.Array.Repa.Algorithms.Matrix
 
 import Activation
-import Util (fromList)
+import Util (fromList, (+#))
 
 -- h is activation function
 generateP (w1, w2, bias, h) = neuronP
@@ -37,6 +37,8 @@ tripleP x (f, w, b) = do
   R.computeUnboxedP $ R.zipWith ((f.).(+)) xw b
 
 triple x (f, w, b) = runST (tripleP x (f, w, b))
+
+tripleS x (f, w, b) = R.computeUnboxedS $ R.map f $ mmultS x w +# b
 
 forward :: (Foldable t, R.Source r Double) =>
   R.Array R.U R.DIM2 Double
