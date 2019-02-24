@@ -10,9 +10,6 @@ module Util ( fromList
 import qualified Data.Array.Repa as R
 import Data.Array.Repa.Algorithms.Matrix
 
-sizeOf :: (R.Shape sh, R.Source r e) => R.Array r sh e -> Int
-sizeOf x = R.size $ R.extent x
-
 fromList xs = R.fromListUnboxed (R.Z R.:. r R.:. c) $ concat xs
   where
     (r, c) = (length xs, length (head xs))
@@ -52,30 +49,3 @@ x *# y = f R.*^ g
 x /# y = f R./^ g 
   where
     (f, g) = adjust x y
-
-x :: R.Array R.U (R.Z R.:. Int) Double
-x =  R.fromListUnboxed (R.Z R.:. 2) [1.0, 0.5]
-x' :: R.Array R.U (R.Z R.:. Int R.:. Int) Int
-x' =  R.fromListUnboxed (R.Z R.:. 2 R.:. 1) [10, 20]
-x'' :: R.Array R.U (R.Z R.:. Int) Int
-x'' =  R.fromListUnboxed (R.Z R.:. 2) [1, 2]
-
-x1 :: R.Array R.U (R.Z R.:. Int) Int
-x1 = R.fromListUnboxed (R.Z R.:. 3) [0..2]
-x2 :: R.Array R.U (R.Z R.:. Int R.:. Int) Int
-x2 = R.fromListUnboxed (R.Z R.:. 3 R.:. 2) [0..5]
-
-w1 :: R.Array R.U (R.Z R.:. Int R.:. Int) Double
-w1 = R.fromListUnboxed (R.Z R.:. 2 R.:. 3) [0.1,0.2,0.3,0.4,0.5,0.6]
-b1 :: R.Array R.U (R.Z R.:. Int) Double
-b1 = R.fromListUnboxed (R.Z R.:. 3) [0.7,0.8,0.9]
-
-y1 :: R.Array R.U (R.Z R.:. Int R.:. Int R.:. Int) Int
-y1 = R.fromListUnboxed (R.Z R.:. 3 R.:. 2 R.:. 4) [1..24]
-z1 :: R.Array R.U R.Z Double
-z1 = R.fromListUnboxed R.Z [0.01]
-
-y2 :: R.Array R.U (R.Z R.:. Int R.:. Int) Int
-y2 = R.fromListUnboxed (R.Z R.:. 2 R.:. 3) [2,4,6,8,10,12]
-z2 :: R.Array R.U (R.Z R.:. Int R.:. Int R.:. Int) Int
-z2 = R.fromListUnboxed (R.Z R.:. 4 R.:. 1 R.:. 1) [10,100,1000,10000]
