@@ -34,18 +34,18 @@ adjust x1 x2 = (f1, f2)
 infixl 6 +#, -#
 infixl 7 *#, /#
 
-x +# y = f R.+^ g 
-  where
-    (f, g) = adjust x y
+(+#) :: (R.Source r1 c, R.Source r2 c, R.Shape sh1, R.Shape sh2,
+          R.Shape sh, Num c) => R.Array r1 sh1 c -> R.Array r2 sh2 c -> R.Array R.D sh c
+(+#) = (uncurry (R.+^) .) . adjust
 
-x -# y = f R.-^ g 
-  where
-    (f, g) = adjust x y
+(-#) :: (R.Source r1 c, R.Source r2 c, R.Shape sh1, R.Shape sh2,
+          R.Shape sh, Num c) => R.Array r1 sh1 c -> R.Array r2 sh2 c -> R.Array R.D sh c
+(-#) = (uncurry (R.-^) .) . adjust
 
-x *# y = f R.*^ g 
-  where
-    (f, g) = adjust x y
+(*#) :: (R.Source r1 c, R.Source r2 c, R.Shape sh1, R.Shape sh2,
+          R.Shape sh, Num c) => R.Array r1 sh1 c -> R.Array r2 sh2 c -> R.Array R.D sh c
+(*#) = (uncurry (R.*^) .) . adjust
 
-x /# y = f R./^ g 
-  where
-    (f, g) = adjust x y
+(/#) :: (R.Source r1 c, R.Source r2 c, R.Shape sh1, R.Shape sh2,
+          R.Shape sh, Fractional c) => R.Array r1 sh1 c -> R.Array r2 sh2 c -> R.Array R.D sh c
+(/#) = (uncurry (R./^) .) . adjust
