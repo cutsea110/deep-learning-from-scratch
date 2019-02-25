@@ -40,8 +40,16 @@ keyFiles = [ ("train_image", "train-images-idx3-ubyte.gz")
 mkURL f = baseURL ++ "/" ++ f
 mkPath f = assetsDir ++ "/" ++ f
 
+mkAssetsDir = do
+  b <- doesDirectoryExist assetsDir
+  when (not b) $ do
+    putStrLn $ "Not found " ++ assetsDir ++ "."
+    putStrLn "Creating ..."
+    createDirectoryIfMissing True assetsDir
+
 download :: FilePath -> IO ()
 download f = do
+  mkAssetsDir
   b <- doesFileExist $ mkPath f
   if b
     then putStrLn $ "Skip downloaing " ++ mkPath f ++" because it's already downloaded."
@@ -54,12 +62,7 @@ download f = do
     mkReq = parseRequest . mkURL
 
 downloadMnist = do
-  b <- doesDirectoryExist assetsDir
-  when (not b) $ do
-    putStrLn $ "Not found " ++ assetsDir ++ "."
-    putStrLn "Creating ..."
-    createDirectoryIfMissing True assetsDir
-
+  mkAssetsDir
   forM_ keyFiles $ \(_, f) -> do
     download f
   
@@ -118,21 +121,21 @@ drawAA xs = forM_ (toMatrix $ R.toList xs) prLn
 
 draw :: DataSet -> Int -> IO ()
 draw ds i = do
-  let (lbl, img) = (`labelAt` i) *** (`imageAt` i) $ ds
+  let (img, lbl) = (`imageAt` i) *** (`labelAt` i) $ ds
   putStrLn $ "Sample " ++ show i
   drawAA img
   putStrLn $ "Answer " ++ show (lbl R.! (R.Z R.:.0))
 
 loadWith :: (FilePath, FilePath) -> IO (Matrix Word8, Matrix Word8)
-loadWith (lblFile, imgFile) = do
-  xl <- load lblFile
+loadWith (imgFile, lblFile) = do
   xi <- load imgFile
+  xl <- load lblFile
   putStrLn "Displaying the first sample."
-  draw (xl, xi) 0
+  draw (xi, xl) 0
   putStrLn "Done."
-  return (xl, xi)
+  return (xi, xl)
 
 loadTrain :: IO (Matrix Word8, Matrix Word8)
-loadTrain = loadWith ("train-labels-idx1-ubyte.gz", "train-images-idx3-ubyte.gz")
+loadTrain = loadWith ("train-images-idx3-ubyte.gz", "train-labels-idx1-ubyte.gz")
 loadTest :: IO (Matrix Word8, Matrix Word8)
-loadTest  = loadWith ("t10k-labels-idx1-ubyte.gz", "t10k-images-idx3-ubyte.gz")
+loadTest  = loadWith ("t10k-images-idx3-ubyte.gz", "t10k-labels-idx1-ubyte.gz")
