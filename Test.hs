@@ -24,3 +24,7 @@ plotStep = plot step (-2.0, 2.0)
 
 plotReLU :: IO ()
 plotReLU = plot relu (-2.0, 5.0)
+
+numericalDiff f x = (f (x+h) - f (x-h)) / 2*h
+  where
+    h = 1e-4
