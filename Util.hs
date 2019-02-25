@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeOperators #-}
-module Util ( fromList
-            -- operators like breadcast
+module Util ( adjust
+            -- operators broadcast version
             , (+#)
             , (-#)
             , (*#)
@@ -9,10 +9,6 @@ module Util ( fromList
 
 import qualified Data.Array.Repa as R
 import Data.Array.Repa.Algorithms.Matrix
-
-fromList xs = R.fromListUnboxed (R.Z R.:. r R.:. c) $ concat xs
-  where
-    (r, c) = (length xs, length (head xs))
 
 adjust :: (R.Source r1 a1, R.Source r2 a2, R.Shape sh1, R.Shape sh2, R.Shape sh3) =>
           R.Array r1 sh1 a1 -> R.Array r2 sh2 a2 -> (R.Array R.D sh3 a1, R.Array R.D sh3 a2)
