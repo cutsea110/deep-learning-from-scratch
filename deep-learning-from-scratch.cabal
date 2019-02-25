@@ -22,6 +22,7 @@ library
                      , Neuron
                      , Main
                      , Mnist
+                     , Loss
                      , Util
                      , Test
   -- other-modules:
@@ -34,6 +35,7 @@ library
                      , repa >=3.4 && <3.5
                      , repa-algorithms >=3.4 && <3.5
                      , repa-io >=3.4 && <3.5
+                     , vector >=0.12 && <0.13
                      , zlib >=0.6 && <0.7
   -- hs-source-dirs:
   default-language:    Haskell2010
