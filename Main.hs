@@ -25,7 +25,7 @@ main = do
   print s
 
 x :: R.Array R.U R.DIM2 Double
-x = R.fromListUnboxed (R.Z R.:.1 R.:.2) [1.0, 0.5]
+x = R.fromListUnboxed (R.Z R.:.2 R.:.2) [1.0, 0.5, -0.5, -1.0] -- batch size 2
 
 initNetwork = [ (sigmoid, w1, b1)
               , (sigmoid, w2, b2)
