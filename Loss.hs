@@ -17,11 +17,14 @@ mseP y t = do
   x <- R.sumAllP $ R.map (^2) $ y R.-^ t
   return (0.5 * x)
 
+-- | cross entropy error
+ceeS y t = negate $ R.sumAllS $ t R.*^ R.map (log . (+delta)) y
+  where
+    delta = 1e-7
 
-
-y :: R.Array R.U R.DIM1 Double
-y = R.fromListUnboxed (R.Z R.:.10) [0.1, 0.05, 0.6, 0.0, 0.05, 0.1, 0.0, 0.1, 0.0, 0.0]
-y' :: R.Array R.U R.DIM1 Double
-y' = R.fromListUnboxed (R.Z R.:.10) [0.1, 0.05, 0.1, 0.0, 0.05, 0.1, 0.0, 0.6, 0.0, 0.0]
-t :: R.Array R.U R.DIM1 Double
-t = R.fromListUnboxed (R.Z R.:.10) [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+-- | cross entropy error
+ceeP y t = do
+  x <- R.sumAllP $ t R.*^ R.map (log . (+delta)) y
+  return (negate x)
+  where
+    delta = 1e-7
