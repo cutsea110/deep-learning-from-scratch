@@ -129,9 +129,9 @@ draw ds i = do
 loadWith :: (FilePath, FilePath) -> IO (Matrix Word8, Matrix Word8)
 loadWith (imgFile, lblFile) = do
   xi <- load imgFile
-  putStrLn $ "image's extent is ... " ++ show (R.extent xi)
+  putStrLn $ "image's extent is ... " ++ show (R.extent xi) ++ " realized."
   xl <- load lblFile
-  putStrLn $ "label's extent is ... " ++ show (R.extent xl)
+  putStrLn $ "label's extent is ... " ++ show (R.extent xl) ++ " realized."
   putStrLn "Displaying the first sample."
   draw (xi, xl) 0
   putStrLn "Done."
