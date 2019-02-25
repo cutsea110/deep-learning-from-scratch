@@ -1,8 +1,11 @@
-module Loss where
+module Loss ( mseS
+            , mseP
+            , ceeS
+            , ceeP
+            ) where
 
 import qualified Data.Array.Repa as R
 import qualified Data.Vector.Unboxed
-import Util ((+#), (*#))
 
 -- | mean squared error
 mseS :: (Fractional a, R.Shape sh, R.Source r1 a, R.Source r2 a) =>
