@@ -23,7 +23,7 @@ import Network.HTTP.Simple ( parseRequest
                            , httpLBS
                            , getResponseBody
                            )
-import System.Directory (createDirectoryIfMissing)
+import System.Directory (createDirectoryIfMissing, doesDirectoryExist, doesFileExist)
 
 type DataSet = (Matrix Word8, Matrix Word8)
 type Matrix a = R.Array R.U R.DIM2 a
@@ -40,18 +40,28 @@ keyFiles = [ ("train_image", "train-images-idx3-ubyte.gz")
 mkURL f = baseURL ++ "/" ++ f
 mkPath f = assetsDir ++ "/" ++ f
 
+download :: FilePath -> IO ()
 download f = do
-  r <- httpLBS =<< mkReq f
-  BL.writeFile (mkPath f) $ getResponseBody r
+  b <- doesFileExist $ mkPath f
+  if b
+    then putStrLn $ "Skip downloaing " ++ mkPath f ++" because it's already downloaded."
+    else do
+    putStr $ mkPath f ++ "Downloading... "
+    r <- httpLBS =<< mkReq f
+    BL.writeFile (mkPath f) $ getResponseBody r
+    putStrLn "Done."
   where
     mkReq = parseRequest . mkURL
 
 downloadMnist = do
-  createDirectoryIfMissing True assetsDir
-  putStr "Downloading... "
+  b <- doesDirectoryExist assetsDir
+  when (not b) $ do
+    putStrLn $ "Not found " ++ assetsDir ++ "."
+    putStrLn "Creating ..."
+    createDirectoryIfMissing True assetsDir
+
   forM_ keyFiles $ \(_, f) -> do
     download f
-  putStrLn "Done."
   
 toWord8List :: BL.ByteString -> [Word8]
 toWord8List = map (read . show . fromEnum) . BL.unpack
@@ -62,15 +72,22 @@ toInt = foldl' (\b a -> b * 256 + fromIntegral a) 0 . toWord8List
 mnistImage = 2051
 mnistLabel = 2049
 
-load :: String -> IO (Matrix Word8)
+load :: FilePath -> IO (Matrix Word8)
 load f = do
-    bs <- fmap GZ.decompress (BL.readFile $ mkPath f)
-    let (typ,  r) = toInt *** id $ BL.splitAt 4 bs
-    if typ == mnistImage
-      then loadImage r
-      else if typ == mnistLabel
-      then loadLabel r
-      else error $ "Unknown format " ++ show typ
+  download f
+  bs <- fmap GZ.decompress (BL.readFile $ mkPath f)
+  let (typ,  r) = toInt *** id $ BL.splitAt 4 bs
+  ret <- if typ == mnistImage
+         then do { putStr $ "Loading image ... " ++ mkPath f
+                 ; loadImage r
+                 }
+         else if typ == mnistLabel
+              then do { putStr $ "Loading label ... " ++ mkPath f
+                      ; loadLabel r
+                      }
+              else error $ "Unknown format " ++ show typ
+  putStrLn " Done."
+  return ret
 
 loadImage :: BL.ByteString -> IO (Matrix Word8)
 loadImage bs = do
@@ -106,11 +123,11 @@ draw ds i = do
   drawAA img
   putStrLn $ "Answer " ++ show (lbl R.! (R.Z R.:.0))
 
-loadWith :: (String, String) -> IO (Matrix Word8, Matrix Word8)
+loadWith :: (FilePath, FilePath) -> IO (Matrix Word8, Matrix Word8)
 loadWith (lblFile, imgFile) = do
-  putStr "Loading... "
   xl <- load lblFile
   xi <- load imgFile
+  putStrLn "Displaying the first sample."
   draw (xl, xi) 0
   putStrLn "Done."
   return (xl, xi)
