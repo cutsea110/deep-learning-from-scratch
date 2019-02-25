@@ -7,12 +7,15 @@ import Activation ( perceptron
                   , step
                   , relu
                   )
+
 plot :: (Double -> Double) -> (Double, Double) -> IO ()
 plot f = plots [f]
 
 plots :: (RealFrac a, Tuple.C a) => [a -> a] -> (a, a) -> IO ()
-plots fs (l, r) = plotPaths [] $ zipWith (\f xs -> fmap (\x -> (x, f x)) xs) fs (repeat (linearScale points (l, r)))
-  where points = round ((r - 1)/4.0e-3)
+plots fs rng@(l, r) = plotPaths [] $ zipWith (\f -> fmap ((,) <$> id <*> f)) fs xss
+  where
+    points = round ((r - l)/4.0e-3)
+    xss = repeat (linearScale points rng)
 
 plotSin :: IO ()
 plotSin = plot sin (0.0, 2*pi)
