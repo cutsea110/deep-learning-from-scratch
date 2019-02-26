@@ -71,11 +71,10 @@ numericalGradient f x = R.fromFunction sh (\ix -> (f (xus R.! ix) - f (xls R.! i
   where
     h = 1e-4
     sh = R.extent x
-    (xus, xls) = (g (+), g (-))
-    g op = R.fromFunction sh (\ix -> R.fromFunction sh
-                               (\ix' -> if ix == ix'
-                                        then x R.! ix' `op` h
-                                        else x R.! ix'))
+    (xus, xls) = (gen (+), gen (-))
+    gen op = R.fromFunction sh (R.fromFunction sh . d op)
+    d op ix ix' | ix == ix' = x R.! ix' `op` h
+                | otherwise = x R.! ix'
 
 ----------------------------------------------------------------
 -- Utilities on Gnuplot
