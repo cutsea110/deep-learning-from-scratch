@@ -8,10 +8,15 @@ module Util ( adjust
             -- numerical utilities
             , numericalDiff
             , genGrad
+            -- plot
+            , plot
+            , plots
             ) where
 
 import qualified Data.Array.Repa as R
 import Data.Array.Repa.Algorithms.Matrix
+import Graphics.Gnuplot.Simple
+import qualified Graphics.Gnuplot.Value.Tuple as Tuple
 
 adjust :: (R.Source r1 a1, R.Source r2 a2, R.Shape sh1, R.Shape sh2, R.Shape sh3) =>
           R.Array r1 sh1 a1 -> R.Array r2 sh2 a2 -> (R.Array R.D sh3 a1, R.Array R.D sh3 a2)
@@ -60,3 +65,16 @@ genGrad f x = \a -> numDiff * a + b
     numDiff = numericalDiff f x
     p = (x, f x)
     b = f x - numDiff * x
+
+----------------------------------------------------------------
+-- Utilities on Gnuplot
+----------------------------------------------------------------
+
+plot :: (Double -> Double) -> (Double, Double) -> IO ()
+plot f = plots [f]
+
+plots :: (RealFrac a, Tuple.C a) => [a -> a] -> (a, a) -> IO ()
+plots fs rng@(l, r) = plotPaths [] $ zipWith (\f -> fmap ((,) <$> id <*> f)) fs xss
+  where
+    points = round ((r - l)/4.0e-3)
+    xss = repeat (linearScale points rng)
