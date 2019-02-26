@@ -9,6 +9,7 @@ module Util ( adjust
             , numericalDiff
             , genGrad
             , numericalGradient
+            , gradientDescent
             -- plot
             , plot
             , plots
