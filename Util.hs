@@ -66,6 +66,17 @@ genGrad f x = \a -> numDiff * a + b
     p = (x, f x)
     b = f x - numDiff * x
 
+-- calculate numerical gradient
+numericalGradient f x = R.fromFunction sh (\ix -> (f (xus R.! ix) - f (xls R.! ix)) / (2*h))
+  where
+    h = 1e-4
+    sh = R.extent x
+    xus = R.fromFunction sh (\ix -> R.fromFunction sh (\ix' -> if ix == ix' then x R.! ix' + h else x R.! ix'))
+    xls = R.fromFunction sh (\ix -> R.fromFunction sh (\ix' -> if ix == ix' then x R.! ix' - h else x R.! ix'))
+      
+
+
+
 ----------------------------------------------------------------
 -- Utilities on Gnuplot
 ----------------------------------------------------------------
