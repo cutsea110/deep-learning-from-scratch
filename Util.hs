@@ -16,6 +16,7 @@ module Util ( adjust
 
 import qualified Data.Array.Repa as R
 import Data.Array.Repa.Algorithms.Matrix
+import Data.Vector.Unboxed.Base
 import Graphics.Gnuplot.Simple
 import qualified Graphics.Gnuplot.Value.Tuple as Tuple
 
@@ -79,6 +80,16 @@ numericalGradient f x = R.fromFunction sh (\ix -> (f (xus R.! ix) - f (xls R.! i
     gen op = R.fromFunction sh (R.fromFunction sh . d op)
     d op ix ix' | ix == ix' = x R.! ix' `op` h
                 | otherwise = x R.! ix'
+
+gradientDescent
+  :: (Unbox e, R.Shape sh, Fractional e) =>
+     (R.Array R.D sh e -> e)
+     -> e -> Int -> R.Array R.U sh e -> R.Array R.U sh e
+gradientDescent f lr stepNum x = g !! stepNum
+  where
+    sh = R.extent x
+    lr' = R.fromFunction sh (\ix -> lr)
+    g = iterate (\s -> R.computeUnboxedS (s R.-^ lr' R.*^ numericalGradient f s)) x
 
 ----------------------------------------------------------------
 -- Utilities on Gnuplot
