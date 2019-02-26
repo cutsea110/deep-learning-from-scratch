@@ -25,6 +25,7 @@ library
                      , Loss
                      , Util
                      , Test
+                     , SimpleNet
   -- other-modules:
   -- other-extensions:
   build-depends:       base >=4.11 && <4.12
