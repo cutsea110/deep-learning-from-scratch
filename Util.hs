@@ -55,11 +55,12 @@ infixl 7 *#, /#
 (/#) = (uncurry (R./^) .) . adjust
 
 -- calculate numerical difference
+numericalDiff :: Fractional a => (a -> a) -> a -> a
 numericalDiff f x = (f (x+h) - f (x-h)) / (2*h)
   where
     h = 1e-4
 
-genGrad :: (Double -> Double) -> Double -> (Double -> Double)
+genGrad :: Fractional a => (a -> a) -> a -> a -> a
 genGrad f x = \a -> numDiff * a + b
   where
     numDiff = numericalDiff f x
@@ -67,6 +68,8 @@ genGrad f x = \a -> numDiff * a + b
     b = f x - numDiff * x
 
 -- calculate numerical gradient
+numericalGradient :: (R.Source r a, R.Shape sh, Fractional a) =>
+                     (R.Array R.D sh a -> a) -> R.Array r sh a -> R.Array R.D sh a
 numericalGradient f x = R.fromFunction sh (\ix -> (f (xus R.! ix) - f (xls R.! ix)) / (2*h))
   where
     h = 1e-4
