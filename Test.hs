@@ -8,6 +8,7 @@ import Activation ( perceptron
                   , relu
                   )
 import Util
+import Graphics.Gnuplot.Simple
 
 plotSin :: IO ()
 plotSin = plot sin (0.0 :: Double, 2*pi)
@@ -45,3 +46,14 @@ numGrad1 = R.computeUnboxedS $ numericalGradient f (R.fromListUnboxed (R.Z R.:.2
   where
     f x = R.sumAllS $ R.map (^2) x
 
+plotGrad = plotPathStyle [] style $ zip grids vecs'
+  where
+    style = defaultStyle { plotType = Vectors, lineSpec = CustomStyle [LineType 1, LineWidth 0.5] }
+    
+    f x = R.sumAllS $ R.map (^2) x
+    grids = [(x,y) | x <- [-2.0,-1.75..2.0], y <- [-2.0,-1.75..2.0]]
+    
+    args = map (\(x,y) -> R.fromListUnboxed (R.Z R.:.2) [x,y] :: R.Array R.U R.DIM1 Double) grids
+    vecs = map (\x -> let r = R.computeUnboxedS (numericalGradient f x) in (r R.! (R.Z R.:. 0), r R.! (R.Z R.:.1))) args
+    vecs' = map (\(v1, v2) -> (-0.05 * v1, -0.05 * v2)) vecs
+    
