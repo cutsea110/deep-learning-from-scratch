@@ -1,4 +1,4 @@
-module Test where
+ module Test where
 
 import Activation ( perceptron
                   , sigmoid
@@ -34,3 +34,6 @@ plotWithGrad1 = plots [fun1, genGrad fun1 5] (0.0, 20.0)
 -- gradient at (10, 2.0(= fun1 10))
 plotWithGrad2 :: IO ()
 plotWithGrad2 = plots [fun1, genGrad fun1 10] (0.0, 20.0)
+
+plotWithGrad3 :: IO ()
+plotWithGrad3 = plots [fun1, genGrad fun1 1, genGrad fun1 5, genGrad fun1 10] (0.0, 20.0)
