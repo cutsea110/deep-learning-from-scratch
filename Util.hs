@@ -8,6 +8,7 @@ module Util ( adjust
             -- numerical utilities
             , numericalDiff
             , genGrad
+            , numericalGradient
             -- plot
             , plot
             , plots
@@ -83,7 +84,7 @@ numericalGradient f x = R.fromFunction sh (\ix -> (f (xus R.! ix) - f (xls R.! i
 -- Utilities on Gnuplot
 ----------------------------------------------------------------
 
-plot :: (Double -> Double) -> (Double, Double) -> IO ()
+plot :: (RealFrac a, Tuple.C a) => (a -> a) -> (a, a) -> IO ()
 plot f = plots [f]
 
 plots :: (RealFrac a, Tuple.C a) => [a -> a] -> (a, a) -> IO ()
