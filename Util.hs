@@ -5,6 +5,9 @@ module Util ( adjust
             , (-#)
             , (*#)
             , (/#)
+            -- numerical utilities
+            , numericalDiff
+            , genGrad
             ) where
 
 import qualified Data.Array.Repa as R
@@ -45,3 +48,15 @@ infixl 7 *#, /#
 (/#) :: (R.Source r1 c, R.Source r2 c, R.Shape sh1, R.Shape sh2,
           R.Shape sh, Fractional c) => R.Array r1 sh1 c -> R.Array r2 sh2 c -> R.Array R.D sh c
 (/#) = (uncurry (R./^) .) . adjust
+
+-- calculate numerical difference
+numericalDiff f x = (f (x+h) - f (x-h)) / (2*h)
+  where
+    h = 1e-4
+
+genGrad :: (Double -> Double) -> Double -> (Double -> Double)
+genGrad f x = \a -> numDiff * a + b
+  where
+    numDiff = numericalDiff f x
+    p = (x, f x)
+    b = f x - numDiff * x
