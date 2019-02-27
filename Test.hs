@@ -30,6 +30,9 @@ plotReLU = plot relu (-2.0 :: Double, 5.0)
 fun1 :: Double -> Double
 fun1 x = 0.01 * (x^2) + 0.1 * x
 
+fun2 :: (R.Shape sh, R.Source r a, Num a) => R.Array r sh a -> a
+fun2 = R.sumAllS . R.map (^2)
+
 plotFun1 :: IO ()
 plotFun1 = plot fun1 (0.0, 20.0)
 
