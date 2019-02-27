@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Loss ( mseS
             , mseP
             , ceeS
@@ -21,13 +22,15 @@ mseP y t = do
   return (0.5 * x)
 
 -- | cross entropy error
-ceeS y t = negate $ R.sumAllS $ t R.*^ R.map (log . (+delta)) y
+ceeS y t = negate (R.sumAllS $ t R.*^ R.map (log . (+delta)) y) / (fromIntegral batchSize)
   where
     delta = 1e-7
+    batchSize = last $ R.listOfShape $ R.extent y
 
 -- | cross entropy error
 ceeP y t = do
   x <- R.sumAllP $ t R.*^ R.map (log . (+delta)) y
-  return (negate x)
+  return (negate x / fromIntegral batchSize)
   where
     delta = 1e-7
+    batchSize = last $ R.listOfShape $ R.extent y

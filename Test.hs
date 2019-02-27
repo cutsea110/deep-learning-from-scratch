@@ -85,3 +85,12 @@ ceePTest2 :: IO Double
     y, t :: R.Array R.U R.DIM1 Double
     y = R.fromListUnboxed (R.Z R.:.10) [0.1, 0.05, 0.1, 0.0, 0.05, 0.1, 0.0, 0.6, 0.0, 0.0]
     t = R.fromListUnboxed (R.Z R.:.10) [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+
+ceePTest3 :: IO Double
+(ceeSTest3, ceePTest3) = (ceeS y t, ceeP y t)
+  where
+    y, t :: R.Array R.U R.DIM2 Double
+    y = R.fromListUnboxed (R.Z R.:.2 R.:.10) [ 0.1, 0.05, 0.6, 0.0, 0.05, 0.1, 0.0, 0.1, 0.0, 0.0
+                                             , 0.1, 0.05, 0.1, 0.0, 0.05, 0.1, 0.0, 0.6, 0.0, 0.0]
+    t = R.fromListUnboxed (R.Z R.:.2 R.:.10) [ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
+                                             , 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
