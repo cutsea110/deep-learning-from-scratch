@@ -1,4 +1,5 @@
- module Test where
+{-# LANGUAGE FlexibleContexts #-}
+module Test where
 
 import qualified Data.Array.Repa as R
  
@@ -7,6 +8,7 @@ import Activation ( perceptron
                   , step
                   , relu
                   )
+import Loss
 import Util
 import Graphics.Gnuplot.Simple
 
@@ -66,3 +68,17 @@ plotGradDesc = plotPathsStyle [] [(style, xs')]
     xs = map (\n -> gradientDescent f 0.1 n x) [0..100]
     xs' = map (\x -> (x R.! (R.Z R.:.(0::Int)), x R.! (R.Z R.:.(1::Int)))) xs
     style = defaultStyle{plotType=Points,lineSpec=CustomStyle [PointType 7, PointSize 2]}
+
+ceePTest1 :: IO Double
+(ceeSTest1, ceePTest1) = (ceeS y t, ceeP y t)
+  where
+    y, t :: R.Array R.U R.DIM1 Double
+    y = R.fromListUnboxed (R.Z R.:.10) [0.1, 0.05, 0.6, 0.0, 0.05, 0.1, 0.0, 0.1, 0.0, 0.0]
+    t = R.fromListUnboxed (R.Z R.:.10) [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+
+ceePTest2 :: IO Double
+(ceeSTest2, ceePTest2) = (ceeS y t, ceeP y t)
+  where
+    y, t :: R.Array R.U R.DIM1 Double
+    y = R.fromListUnboxed (R.Z R.:.10) [0.1, 0.05, 0.1, 0.0, 0.05, 0.1, 0.0, 0.6, 0.0, 0.0]
+    t = R.fromListUnboxed (R.Z R.:.10) [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]

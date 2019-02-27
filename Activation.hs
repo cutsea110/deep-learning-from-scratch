@@ -3,7 +3,7 @@ module Activation ( perceptron
                   , sigmoid
                   , step
                   , relu
-                  , softmax
+                  , softmaxS
                   , softmaxP
                   ) where
 
@@ -19,7 +19,7 @@ sigmoid x = 1 / (1 + exp (-x))
 
 relu = max 0.0
 
-softmax xs = R.computeUnboxedS $ R.map (/ttl) xs'
+softmaxS xs = R.computeUnboxedS $ R.map (/ttl) xs'
   where
     maxVal = (R.foldS max (-1/0) xs) R.! (R.Z R.:.0)
     (xs', ttl) = (R.map (exp . subtract maxVal) xs, R.sumAllS xs')
