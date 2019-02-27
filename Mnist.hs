@@ -1,5 +1,9 @@
 {-# LANGUAGE FlexibleContexts, TypeOperators #-}
-module Mnist ( downloadMnist
+module Mnist ( DataSet
+             , Matrix
+             , Vector
+               --
+             , downloadMnist
              , loadTrain
              , loadTest
                --
