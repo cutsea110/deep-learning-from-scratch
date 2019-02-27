@@ -18,8 +18,15 @@ x = R.fromListUnboxed (R.Z R.:.1 R.:.2) [0.6, 0.9]
 t :: R.Array R.U R.DIM2 Double
 t = R.fromListUnboxed (R.Z R.:.1 R.:.3) [0, 0, 1]
 
-predict x = mmultS x w
+predictS x = mmultS x w
 
-loss x t = ceeS (softmaxS (predict x)) t
+lossS x t = ceeS (softmaxS (predictS x)) t
 
 f w = ceeS (softmaxS (mmultS x (R.computeUnboxedS w))) t
+
+predictP x = mmultP x w
+
+lossP x t = do
+  z <- predictP x
+  y <- softmaxP z
+  ceeP y t
