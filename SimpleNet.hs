@@ -36,3 +36,5 @@ lossP x t = do
   z <- predictP x
   y <- softmaxP z
   ceeP y t
+
+dW = R.computeUnboxedS $ numericalGradient f w
