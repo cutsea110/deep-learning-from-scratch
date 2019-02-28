@@ -35,7 +35,7 @@ initTwoLayerNet iSz hSz oSz (l, u) b = do
 
 predict net x = softmaxS $ forwardS x net
 
-loss net x t = ceeS (predict net x) (R.computeUnboxedS $ R.map fromIntegral t)
+loss net x t = ceeS (predict net x) t
 
 numGrad net@((a1,w1,b1):(a2,w2,b2):[]) x t = [(gradw1,gradb1),(gradw2,gradb2)]
   where
@@ -62,7 +62,7 @@ randomSampling n (imgs, lbls) = do
 main = do
   (_xi, _xl) <- loadTrain
   -- normalize
-  let (xi :: R.Array R.D R.DIM2 Double, xl :: R.Array R.D R.DIM2 Int)
+  let (xi :: R.Array R.D R.DIM2 Double, xl :: R.Array R.D R.DIM2 Double)
         = (R.map ((/w).fromIntegral) _xi, R.map fromIntegral _xl)
   let (r, c) = (rowCount xi, colCount xi)
   net <- initTwoLayerNet c hiddenSize outputSize (0.0, 1.0) 0.0
