@@ -37,7 +37,7 @@ predict net x = softmaxS $ forwardS x net
 
 loss net x t = ceeS (predict net x) (R.computeUnboxedS $ R.map fromIntegral t)
 
-numGrad net@((a1,w1,b1):(a2,w2,b2):[]) x t = undefined
+numGrad net@((a1,w1,b1):(a2,w2,b2):[]) x t = [(gradw1,gradb1),(gradw2,gradb2)]
   where
     fw1 w1' = loss [(a1,R.computeUnboxedS w1',b1),(a2,w2,b2)] x t
     fb1 b1' = loss [(a1,w1,R.computeUnboxedS b1'),(a2,w2,b2)] x t
