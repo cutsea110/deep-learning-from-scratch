@@ -29,9 +29,11 @@ initTwoLayerNet iSz hSz oSz (l, u) b = do
 main = do
   (xl, xi) <- loadTrain
   let (r, c) = (rowCount xi, colCount xi)
-  net <- initTwoLayerNet c 100 10 (0.0, 1.0) 0.0
+  net <- initTwoLayerNet c hiddenSize outputSize (0.0, 1.0) 0.0
   
   putStrLn "Done."
   
   where
+    hiddenSize = 100
+    outputSize = 10
     batchSize = 100
