@@ -15,6 +15,7 @@ module Util ( adjust
             , plots
             -- others
             , rowCount
+            , colCount
             ) where
 
 import qualified Data.Array.Repa as R
@@ -94,8 +95,11 @@ gradientDescent f lr stepNum x = g !! stepNum
     lr' = R.fromFunction sh (\ix -> lr)
     g = iterate (\s -> R.computeUnboxedS (s R.-^ lr' R.*^ numericalGradient f s)) x
 
-rowCount :: (R.Shape sh, R.Source r e) => R.Array r sh e -> Int
+rowCount :: (R.Source r e) => R.Array r R.DIM2 e -> Int
 rowCount = last . R.listOfShape . R.extent
+
+colCount :: (R.Source r e) => R.Array r R.DIM2 e -> Int
+colCount = head . R.listOfShape . R.extent
 
 ----------------------------------------------------------------
 -- Utilities on Gnuplot
