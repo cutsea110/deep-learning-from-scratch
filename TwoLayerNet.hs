@@ -47,10 +47,10 @@ lossP net x t = do
 
 numGrad net@((a1,w1,b1):(a2,w2,b2):[]) x t = [(gradw1,gradb1),(gradw2,gradb2)]
   where
-    fw1 w1' = loss [(a1,R.computeUnboxedS w1',b1),(a2,w2,b2)] x t
-    fb1 b1' = loss [(a1,w1,R.computeUnboxedS b1'),(a2,w2,b2)] x t
-    fw2 w2' = loss [(a1,w1,b1),(a2,R.computeUnboxedS w2',b2)] x t
-    fb2 b2' = loss [(a1,w1,b1),(a2,w2,R.computeUnboxedS b2')] x t
+    fw1 w1' = loss [(a1,w1',b1),(a2,w2,b2)] x t
+    fb1 b1' = loss [(a1,w1,b1'),(a2,w2,b2)] x t
+    fw2 w2' = loss [(a1,w1,b1),(a2,w2',b2)] x t
+    fb2 b2' = loss [(a1,w1,b1),(a2,w2,b2')] x t
 
     gradw1 = numericalGradient fw1 w1
     gradb1 = numericalGradient fb1 b1

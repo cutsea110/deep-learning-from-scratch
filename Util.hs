@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE FlexibleContexts, TypeOperators, AllowAmbiguousTypes #-}
 module Util ( adjust
             -- operators broadcast version
             , (+#)
@@ -80,16 +80,12 @@ numericalGradient f x = R.fromFunction sh (\ix -> (f (xus R.! ix) - f (xls R.! i
     sh = R.extent x
     (xus, xls) = (gen h x (+), gen h x (-))
 
-gen h x op = R.fromFunction sh (R.fromFunction sh . d op)
+gen h x op = R.fromFunction sh (R.computeUnboxedS . R.fromFunction sh . d op)
   where
     sh = R.extent x
     d op ix ix' | ix == ix' = x R.! ix' `op` h
                 | otherwise = x R.! ix'
 
-gradientDescent
-  :: (Unbox e, R.Shape sh, Fractional e) =>
-     (R.Array R.D sh e -> e)
-     -> e -> Int -> R.Array R.U sh e -> R.Array R.U sh e
 gradientDescent f lr stepNum x = g !! stepNum
   where
     sh = R.extent x

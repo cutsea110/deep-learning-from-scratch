@@ -23,7 +23,7 @@ predictS x = mmultS x w
 
 lossS x t = ceeS (softmaxS (predictS x)) t
 
-f w = ceeS (softmaxS (mmultS x (R.computeUnboxedS w))) t
+f w = ceeS (softmaxS (mmultS x w)) t
 
 f' w = do
   x <- mmultP x w
