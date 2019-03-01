@@ -9,8 +9,9 @@ import Loss (ceeS, ceeP)
 import Util
 
 w :: R.Array R.U R.DIM2 Double
-w = R.fromListUnboxed (R.Z R.:.2 R.:.3) [0.47355232, 0.9977393, 0.84668094,
-                                         0.85557411, 0.03563661, 0.69422093]
+w = R.fromListUnboxed (R.Z R.:.2 R.:.3) [ 0.47355232, 0.9977393, 0.84668094
+                                        , 0.85557411, 0.03563661, 0.69422093
+                                        ]
 
 x :: R.Array R.U R.DIM2 Double
 x = R.fromListUnboxed (R.Z R.:.1 R.:.2) [0.6, 0.9]
@@ -25,8 +26,7 @@ lossS x t = ceeS (softmaxS (predictS x)) t
 f w = ceeS (softmaxS (mmultS x (R.computeUnboxedS w))) t
 
 f' w = do
-  let w' = R.computeUnboxedS w
-  x <- mmultP x w'
+  x <- mmultP x w
   y <- softmaxP x
   ceeP y t
 
