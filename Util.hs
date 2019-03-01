@@ -74,14 +74,15 @@ genGrad f x = \a -> numDiff * a + b
     b = f x - numDiff * x
 
 -- calculate numerical gradient
-numericalGradient :: (R.Source r a, R.Shape sh, Fractional a) =>
-                     (R.Array R.D sh a -> a) -> R.Array r sh a -> R.Array R.D sh a
 numericalGradient f x = R.fromFunction sh (\ix -> (f (xus R.! ix) - f (xls R.! ix)) / (2*h))
   where
     h = 1e-4
     sh = R.extent x
-    (xus, xls) = (gen (+), gen (-))
-    gen op = R.fromFunction sh (R.fromFunction sh . d op)
+    (xus, xls) = (gen h x (+), gen h x (-))
+
+gen h x op = R.fromFunction sh (R.fromFunction sh . d op)
+  where
+    sh = R.extent x
     d op ix ix' | ix == ix' = x R.! ix' `op` h
                 | otherwise = x R.! ix'
 
