@@ -9,15 +9,15 @@ import Loss (ceeS, ceeP)
 import Util
 
 w :: R.Array R.U R.DIM2 Double
-w = R.fromListUnboxed (R.Z R.:.2 R.:.3) [ 0.47355232, 0.9977393, 0.84668094
+w = R.fromListUnboxed (R.ix2 2 3) [ 0.47355232, 0.9977393, 0.84668094
                                         , 0.85557411, 0.03563661, 0.69422093
                                         ]
 
 x :: R.Array R.U R.DIM2 Double
-x = R.fromListUnboxed (R.Z R.:.1 R.:.2) [0.6, 0.9]
+x = R.fromListUnboxed (R.ix2 1 2) [0.6, 0.9]
 
 t :: R.Array R.U R.DIM2 Double
-t = R.fromListUnboxed (R.Z R.:.1 R.:.3) [0, 0, 1]
+t = R.fromListUnboxed (R.ix2 1 3) [0, 0, 1]
 
 predictS x = mmultS x w
 

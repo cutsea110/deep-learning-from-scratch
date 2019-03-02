@@ -23,8 +23,8 @@ generateP (w1, w2, bias, h) = neuronP
     neuronP x1 x2 = tmp
       where
         x, w :: R.Array R.U R.DIM1 Double
-        x = R.fromListUnboxed (R.Z R.:.2) [x1, x2]
-        w = R.fromListUnboxed (R.Z R.:.2) [w1, w2]
+        x = R.fromListUnboxed (R.ix1 2) [x1, x2]
+        w = R.fromListUnboxed (R.ix1 2) [w1, w2]
         tmp = do
           t <- R.computeUnboxedP (R.zipWith (*) x w)
           s <- R.sumAllP t
