@@ -47,7 +47,7 @@ plotWithGrad2 = plots [fun1, genGrad fun1 10] (0.0, 20.0)
 plotWithGrad3 :: IO ()
 plotWithGrad3 = plots [fun1, genGrad fun1 1, genGrad fun1 5, genGrad fun1 10] (0.0, 20.0)
 
-numGrad1 = R.computeUnboxedS $ numericalGradient f (R.fromListUnboxed (R.Z R.:.2) [3.0, 4.0] :: R.Array R.U R.DIM1 Double)
+numGrad1 = R.computeUnboxedS $ numericalGradient f (R.fromListUnboxed (R.ix1 2) [3.0, 4.0] :: R.Array R.U R.DIM1 Double)
   where
     f x = R.sumAllS $ R.map (^2) x
 
@@ -59,38 +59,38 @@ plotGrad = plotPathStyle [] style $ zip grids vecs'
     f x = R.sumAllS $ R.map (^2) x
     grids = [(x,y) | x <- [-2.0,-1.75..2.0], y <- [-2.0,-1.75..2.0]]
     
-    args = map (\(x,y) -> R.fromListUnboxed (R.Z R.:.2) [x,y] :: R.Array R.U R.DIM1 Double) grids
-    vecs = map (\x -> let r = R.computeUnboxedS (numericalGradient f x) in (r R.! (R.Z R.:. 0), r R.! (R.Z R.:.1))) args
+    args = map (\(x,y) -> R.fromListUnboxed (R.ix1 2) [x,y] :: R.Array R.U R.DIM1 Double) grids
+    vecs = map (\x -> let r = R.computeUnboxedS (numericalGradient f x) in (r R.! (R.ix1 0), r R.! (R.ix1 1))) args
     vecs' = map (\(v1, v2) -> (-0.05 * v1, -0.05 * v2)) vecs
 
 plotGradDesc :: IO ()
 plotGradDesc = plotPathsStyle [] [(style, xs')]
   where
-    x = R.fromListUnboxed (R.Z R.:.(2::Int)) [-3.0, 4.0::Double]
+    x = R.fromListUnboxed (R.ix1 2) [-3.0, 4.0::Double]
     f = R.sumAllS . R.map (^2)
     xs = map (\n -> gradientDescent f 0.1 n x) [0..100]
-    xs' = map (\x -> (x R.! (R.Z R.:.(0::Int)), x R.! (R.Z R.:.(1::Int)))) xs
+    xs' = map (\x -> (x R.! (R.ix1 0), x R.! (R.ix1 1))) xs
     style = defaultStyle{plotType=Points,lineSpec=CustomStyle [PointType 7, PointSize 2]}
 
 ceePTest1 :: IO Double
 (ceeSTest1, ceePTest1) = (ceeS y t, ceeP y t)
   where
     y, t :: R.Array R.U R.DIM1 Double
-    y = R.fromListUnboxed (R.Z R.:.10) [0.1, 0.05, 0.6, 0.0, 0.05, 0.1, 0.0, 0.1, 0.0, 0.0]
-    t = R.fromListUnboxed (R.Z R.:.10) [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+    y = R.fromListUnboxed (R.ix1 10) [0.1, 0.05, 0.6, 0.0, 0.05, 0.1, 0.0, 0.1, 0.0, 0.0]
+    t = R.fromListUnboxed (R.ix1 10) [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
 
 ceePTest2 :: IO Double
 (ceeSTest2, ceePTest2) = (ceeS y t, ceeP y t)
   where
     y, t :: R.Array R.U R.DIM1 Double
-    y = R.fromListUnboxed (R.Z R.:.10) [0.1, 0.05, 0.1, 0.0, 0.05, 0.1, 0.0, 0.6, 0.0, 0.0]
-    t = R.fromListUnboxed (R.Z R.:.10) [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+    y = R.fromListUnboxed (R.ix1 10) [0.1, 0.05, 0.1, 0.0, 0.05, 0.1, 0.0, 0.6, 0.0, 0.0]
+    t = R.fromListUnboxed (R.ix1 10) [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
 
 ceePTest3 :: IO Double
 (ceeSTest3, ceePTest3) = (ceeS y t, ceeP y t)
   where
     y, t :: R.Array R.U R.DIM2 Double
-    y = R.fromListUnboxed (R.Z R.:.2 R.:.10) [ 0.1, 0.05, 0.6, 0.0, 0.05, 0.1, 0.0, 0.1, 0.0, 0.0
-                                             , 0.1, 0.05, 0.1, 0.0, 0.05, 0.1, 0.0, 0.6, 0.0, 0.0]
-    t = R.fromListUnboxed (R.Z R.:.2 R.:.10) [ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
-                                             , 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+    y = R.fromListUnboxed (R.ix2 2 10) [ 0.1, 0.05, 0.6, 0.0, 0.05, 0.1, 0.0, 0.1, 0.0, 0.0
+                                       , 0.1, 0.05, 0.1, 0.0, 0.05, 0.1, 0.0, 0.6, 0.0, 0.0]
+    t = R.fromListUnboxed (R.ix2 2 10) [ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
+                                       , 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
