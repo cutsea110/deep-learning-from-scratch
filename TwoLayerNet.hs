@@ -4,6 +4,7 @@ module TwoLayerNet where
 import Control.Arrow ((&&&))
 import Control.Monad (replicateM)
 import qualified Data.Array.Repa as R
+import Data.Time
 import Data.Vector.Unboxed.Base
 import Data.Word
 import System.Random
@@ -77,6 +78,19 @@ main = do
   (sImgs, sLbls) <- randomSampling batchSize (xi, xl)
   let z = loss net sImgs sLbls
 
+  --
+  x <- getCurrentTime
+  print x
+  let ret@((gw1, gb1):(gw2, gb2):[]) = numGrad net sImgs sLbls
+  print $ R.computeUnboxedS gw1
+  print $ R.computeUnboxedS gb1
+  print $ R.computeUnboxedS gw2
+  print $ R.computeUnboxedS gb2
+  y <- getCurrentTime
+  print y
+
+  print $ diffUTCTime y x
+  
   putStrLn "Done."
   
   where
@@ -85,3 +99,4 @@ main = do
     batchSize = 100
     w :: Double
     w = fromIntegral (maxBound :: Word8)
+
