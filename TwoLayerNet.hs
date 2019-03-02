@@ -4,6 +4,7 @@ module TwoLayerNet where
 import Control.Arrow ((&&&))
 import Control.Monad (replicateM)
 import qualified Data.Array.Repa as R
+import Data.Array.Repa.Algorithms.Matrix (row, col)
 import Data.Time
 import Data.Vector.Unboxed.Base
 import Data.Word
@@ -66,7 +67,7 @@ randomSampling n (imgs, lbls) = do
     where
       (imgrsz, imgcsz) = rowCount &&& colCount $ imgs
       (lblrsz, lblcsz) = rowCount &&& colCount $ lbls
-      transSh choices ix = let (c:r:[]) = R.listOfShape ix in R.Z R.:. (choices !! r) R.:. c
+      transSh choices ix = R.Z R.:. (choices !! row ix) R.:. (col ix)
 
 main = do
   let (hiddenSize, outputSize, batchSize, w) = (100, 10, 100, fromIntegral (maxBound :: Word8)::Double)
