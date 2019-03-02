@@ -69,6 +69,8 @@ randomSampling n (imgs, lbls) = do
       transSh choices ix = let (c:r:[]) = R.listOfShape ix in R.Z R.:. (choices !! r) R.:. c
 
 main = do
+  let (hiddenSize, outputSize, batchSize, w) = (100, 10, 100, fromIntegral (maxBound :: Word8)::Double)
+
   (_xi, _xl) <- loadTrain
   -- normalize
   let (xi :: R.Array R.D R.DIM2 Double, xl :: R.Array R.D R.DIM2 Double)
@@ -77,7 +79,9 @@ main = do
   net <- initTwoLayerNet c hiddenSize outputSize (0.0, 1.0) 0.0
   (sImgs, sLbls) <- randomSampling batchSize (xi, xl)
   let z = loss net sImgs sLbls
-
+  let net'@((a1,w1,b1):(a2,w2,b2):[]) = net
+  let fw1 w1' = loss [(a1,R.computeUnboxedS w1',b1),(a2,w2,b2)] sImgs sLbls
+  let gradw1 = numericalGradient fw1 w1
   --
   x <- getCurrentTime
   print x
@@ -92,11 +96,3 @@ main = do
   print $ diffUTCTime y x
   
   putStrLn "Done."
-  
-  where
-    hiddenSize = 100
-    outputSize = 10
-    batchSize = 100
-    w :: Double
-    w = fromIntegral (maxBound :: Word8)
-
