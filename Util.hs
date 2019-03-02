@@ -97,10 +97,10 @@ gradientDescent f lr stepNum x = g !! stepNum
     g = iterate (\s -> R.computeUnboxedS (s R.-^ lr' R.*^ numericalGradient f s)) x
 
 rowCount :: (R.Source r e) => R.Array r R.DIM2 e -> Int
-rowCount = last . R.listOfShape . R.extent
+rowCount = row . R.extent
 
 colCount :: (R.Source r e) => R.Array r R.DIM2 e -> Int
-colCount = head . R.listOfShape . R.extent
+colCount = col . R.extent
 
 ----------------------------------------------------------------
 -- Utilities on Gnuplot
