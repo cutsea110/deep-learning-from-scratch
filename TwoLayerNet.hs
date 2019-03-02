@@ -21,10 +21,10 @@ import Mnist (downloadMnist, loadTrain, loadTest, draw)
 initLayer :: (Int, Int) -> (Double, Double) -> IO (R.Array R.U R.DIM2 Double)
 initLayer (iSz, hSz) (l, u) = do
   inits <- replicateM (iSz*hSz) $ getStdRandom $ randomR (l, u)
-  return $ R.fromListUnboxed (R.Z R.:. iSz R.:. hSz) inits
+  return $ R.fromListUnboxed (R.ix2 iSz hSz) inits
 
 initBias :: Int -> Double -> R.Array R.U R.DIM1 Double
-initBias hSz = R.fromListUnboxed (R.Z R.:. hSz) . take hSz . repeat
+initBias hSz = R.fromListUnboxed (R.ix1 hSz) . take hSz . repeat
 
 initTwoLayerNet iSz hSz oSz (l, u) b = do
   w1 <- initLayer (iSz, hSz) (l, u)
@@ -61,13 +61,13 @@ numGrad net@((a1,w1,b1):(a2,w2,b2):[]) x t = [(gradw1,gradb1),(gradw2,gradb2)]
 
 randomSampling n (imgs, lbls) = do
   idxs <- replicateM n $ getStdRandom $ randomR (0, imgrsz)
-  let is = R.backpermute (R.Z R.:. n R.:. imgcsz) (transSh idxs) imgs
-      ls = R.backpermute (R.Z R.:. n R.:. lblcsz) (transSh idxs) lbls
+  let is = R.backpermute (R.ix2 n imgcsz) (transSh idxs) imgs
+      ls = R.backpermute (R.ix2 n lblcsz) (transSh idxs) lbls
   return $ (R.computeUnboxedS is, R.computeUnboxedS ls)
     where
       (imgrsz, imgcsz) = rowCount &&& colCount $ imgs
       (lblrsz, lblcsz) = rowCount &&& colCount $ lbls
-      transSh choices ix = R.Z R.:. (choices !! row ix) R.:. (col ix)
+      transSh choices ix = R.ix2 (choices !! row ix) (col ix)
 
 main = do
   let (hiddenSize, outputSize, batchSize, w) = (100, 10, 100, fromIntegral (maxBound :: Word8)::Double)
