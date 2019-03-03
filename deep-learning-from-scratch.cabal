@@ -24,6 +24,7 @@ library
                      , Mnist
                      , Loss
                      , Util
+                     , RepaTest
                      , Test
                      , SimpleNet
                      , TwoLayerNet

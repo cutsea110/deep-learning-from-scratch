@@ -30,11 +30,24 @@ colextend3 = computeUnboxedS $ extend (Any :.(3::Int)) xs
 --  ,[1,2,3]]
 -- ,[[4,5,6]
 --  ,[4,5,6]]]
-rowextend2 = computeUnboxedS $ extend (Any :. (2::Int) :. All) xs
+midextend2 = computeUnboxedS $ extend (Any :. (2::Int) :. All) xs
 -- [[[1,2,3]
 --  ,[1,2,3]
 --  ,[1,2,3]]
 -- ,[[4,5,6]
 --  ,[4,5,6]
 --  ,[4,5,6]]]
-rowextend3 = computeUnboxedS $ extend (Any :. (3::Int) :. All) xs
+midextend3 = computeUnboxedS $ extend (Any :. (3::Int) :. All) xs
+
+-- [[[1,2,3]
+--  ,[4,5,6]]
+-- ,[[1,2,3]
+--  ,[4,5,6]]]
+rowextend2 = computeUnboxedS $ extend (Z :. (2::Int) :. All :. All) xs
+-- [[[1,2,3]
+--  ,[4,5,6]]
+-- ,[[1,2,3]
+--  ,[4,5,6]]
+-- ,[[1,2,3]
+--  ,[4,5,6]]]
+rowextend3 = computeUnboxedS $ extend (Z :. (3::Int) :. All :. All) xs
