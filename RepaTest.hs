@@ -10,3 +10,7 @@ col1 = computeUnboxedS $ slice xs (Any :. (1 :: Int))
 
 row0 = computeUnboxedS $ slice xs (Z :. (0::Int) :. All)
 row1 = computeUnboxedS $ slice xs (Z :. (1::Int) :. All)
+
+colextend2 = computeUnboxedS $ extend (Any :.(2::Int)) xs
+colextend3 = computeUnboxedS $ extend (Any :.(3::Int)) xs
+
