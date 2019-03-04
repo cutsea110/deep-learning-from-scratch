@@ -18,19 +18,18 @@ import Activation
 import Util ((+#))
 
 -- h is activation function
-generateP (w1, w2, bias, h) = neuronP
+generateP (w1, w2, bias, h) x1 x2 = do
+  s <- R.sumAllP (R.zipWith (*) x w)
+  return $ h (bias + s)
   where
-    neuronP x1 x2 = tmp
-      where
-        x, w :: R.Array R.U R.DIM1 Double
-        x = R.fromListUnboxed (R.ix1 2) [x1, x2]
-        w = R.fromListUnboxed (R.ix1 2) [w1, w2]
-        tmp = do
-          t <- R.computeUnboxedP (R.zipWith (*) x w)
-          s <- R.sumAllP t
-          return $ h (bias + s)
+    x = R.fromListUnboxed (R.ix1 2) [x1, x2]
+    w = R.fromListUnboxed (R.ix1 2) [w1, w2]
 
-generate (w1, w2, bias, h) x1 x2 = runST (generateP (w1, w2, bias, h) x1 x2)
+generate (w1, w2, bias, h) x1 x2 = h (bias + R.sumAllS (R.zipWith (*) x w))
+  where
+    x = R.fromListUnboxed (R.ix1 2) [x1, x2]
+    w = R.fromListUnboxed (R.ix1 2) [w1, w2]
+    
 
 tripleP x (f, w, b) = do
   xw <- mmultP x w
