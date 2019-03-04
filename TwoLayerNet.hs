@@ -67,7 +67,7 @@ randomSampling n (imgs, lbls) = do
     where
       (imgrsz, imgcsz) = rowCount &&& colCount $ imgs
       (lblrsz, lblcsz) = rowCount &&& colCount $ lbls
-      transSh choices ix = R.ix2 (choices !! row ix) (col ix)
+      transSh choices (R.Z R.:. r R.:. c) = R.ix2 (choices !! r) c
 
 main = do
   let (hiddenSize, outputSize, batchSize, w) = (100, 10, 100, fromIntegral (maxBound :: Word8)::Double)
