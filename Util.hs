@@ -24,6 +24,10 @@ import Data.Vector.Unboxed.Base
 import Graphics.Gnuplot.Simple
 import qualified Graphics.Gnuplot.Value.Tuple as Tuple
 
+sh1 `shapeMod` sh2 = R.shapeOfList $ zipWith mod x1 x2
+  where
+    (x1, x2) = (R.listOfShape sh1, R.listOfShape sh2)
+
 adjust :: (R.Source r1 a1, R.Source r2 a2, R.Shape sh1, R.Shape sh2, R.Shape sh3) =>
           R.Array r1 sh1 a1 -> R.Array r2 sh2 a2 -> (R.Array R.D sh3 a1, R.Array R.D sh3 a2)
 adjust x1 x2 = (f1, f2)
