@@ -82,3 +82,11 @@ x2b3 = computeUnboxedS $ x2 +^ reshape (ix2 2 3) (extend (Z :. (2::Int) :. All :
 -- x2 :: Z :. 2 :. 3
 -- b1 :: Z
 x2b1 = computeUnboxedS $ x2 +^ extend (Any :. (2::Int) :. (3::Int)) b1
+
+r1 :: Array U DIM1 Double
+r1 = fromListUnboxed (ix1 3) [1..3]
+c1 :: Array U DIM2 Double
+c1 = fromListUnboxed (ix2 2 1) [10,20]
+-- r1 :: Z :. 3
+-- c1 :: Z :. 2 :. 1
+r1c1 = computeUnboxedS $ (extend (Z :. (2::Int) :. All) r1) +^ (reshape (ix2 2 3) $ extend (Any :. (3::Int)) c1)
