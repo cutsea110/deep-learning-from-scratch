@@ -61,9 +61,9 @@ numGrad net@((a1,w1,b1):(a2,w2,b2):[]) x t = [(gradw1,gradb1),(gradw2,gradb2)]
 
 randomSampling n (imgs, lbls) = do
   idxs <- replicateM n $ getStdRandom $ randomR (0, imgrsz)
-  let vec = R.fromListUnboxed (R.ix1 n) idxs
-  let is = R.backpermute (R.ix2 n imgcsz) (transSh vec) imgs
-      ls = R.backpermute (R.ix2 n lblcsz) (transSh vec) lbls
+  let dict = R.fromListUnboxed (R.ix1 n) idxs
+  let is = R.backpermute (R.ix2 n imgcsz) (transSh dict) imgs
+      ls = R.backpermute (R.ix2 n lblcsz) (transSh dict) lbls
   return $ (R.computeUnboxedS is, R.computeUnboxedS ls)
     where
       (imgrsz, imgcsz) = rowCount &&& colCount $ imgs
