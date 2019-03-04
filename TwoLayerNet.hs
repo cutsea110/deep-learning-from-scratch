@@ -61,13 +61,14 @@ numGrad net@((a1,w1,b1):(a2,w2,b2):[]) x t = [(gradw1,gradb1),(gradw2,gradb2)]
 
 randomSampling n (imgs, lbls) = do
   idxs <- replicateM n $ getStdRandom $ randomR (0, imgrsz)
-  let is = R.backpermute (R.ix2 n imgcsz) (transSh idxs) imgs
-      ls = R.backpermute (R.ix2 n lblcsz) (transSh idxs) lbls
+  let vec = R.fromListUnboxed (R.ix1 n) idxs
+  let is = R.backpermute (R.ix2 n imgcsz) (transSh vec) imgs
+      ls = R.backpermute (R.ix2 n lblcsz) (transSh vec) lbls
   return $ (R.computeUnboxedS is, R.computeUnboxedS ls)
     where
       (imgrsz, imgcsz) = rowCount &&& colCount $ imgs
       (lblrsz, lblcsz) = rowCount &&& colCount $ lbls
-      transSh choices (R.Z R.:. r R.:. c) = R.ix2 (choices !! r) c
+      transSh vec (R.Z R.:. r R.:. c) = R.ix2 (vec R.! (R.ix1 r)) c
 
 main = do
   let (hiddenSize, outputSize, batchSize, w) = (100, 10, 100, fromIntegral (maxBound :: Word8)::Double)
