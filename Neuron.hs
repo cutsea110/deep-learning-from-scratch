@@ -15,7 +15,6 @@ import qualified Data.Array.Repa as R
 import Data.Array.Repa.Algorithms.Matrix
 
 import Activation
-import Util ((+#))
 
 -- h is activation function
 generateP (w1, w2, bias, h) x1 x2 = do
@@ -33,9 +32,13 @@ generate (w1, w2, bias, h) x1 x2 = h (bias + R.sumAllS (R.zipWith (*) x w))
 
 tripleP x (f, w, b) = do
   xw <- mmultP x w
-  R.computeUnboxedP $ R.map f $ xw +# b
+  let (R.Z R.:. r R.:. c) = R.extent xw
+  R.computeP $ R.map f $ xw R.+^  R.extend (R.Z R.:. r R.:. R.All) b
 
-tripleS x (f, w, b) = R.computeUnboxedS $ R.map f $ mmultS x w +# b
+tripleS x (f, w, b) = R.computeS $ R.map f $ xw R.+^ R.extend (R.Z R.:. r R.:. R.All) b
+  where
+    xw = mmultS x w
+    (R.Z R.:. r R.:. c) = R.extent xw
 
 forwardS :: (Foldable t, R.Source r Double) =>
   R.Array R.U R.DIM2 Double

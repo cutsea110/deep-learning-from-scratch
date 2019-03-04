@@ -10,8 +10,8 @@ import Util
 
 w :: R.Array R.U R.DIM2 Double
 w = R.fromListUnboxed (R.ix2 2 3) [ 0.47355232, 0.9977393, 0.84668094
-                                        , 0.85557411, 0.03563661, 0.69422093
-                                        ]
+                                  , 0.85557411, 0.03563661, 0.69422093
+                                  ]
 
 x :: R.Array R.U R.DIM2 Double
 x = R.fromListUnboxed (R.ix2 1 2) [0.6, 0.9]
@@ -23,7 +23,7 @@ predictS x = mmultS x w
 
 lossS x t = ceeS (softmaxS (predictS x)) t
 
-f w = ceeS (softmaxS (mmultS x (R.computeUnboxedS w))) t
+f w = ceeS (softmaxS (mmultS x (R.computeS w))) t
 
 f' w = do
   x <- mmultP x w
@@ -37,4 +37,5 @@ lossP x t = do
   y <- softmaxP z
   ceeP y t
 
-dW = R.computeUnboxedS $ numericalGradient f w
+dW :: R.Array R.U R.DIM2 Double
+dW = R.computeS $ numericalGradient f w
