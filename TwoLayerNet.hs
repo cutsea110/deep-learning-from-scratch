@@ -5,6 +5,7 @@ import Control.Arrow ((&&&))
 import Control.Monad (replicateM)
 import qualified Data.Array.Repa as R
 import Data.Array.Repa.Algorithms.Matrix (row, col)
+import Data.Array.Repa.Operators.IndexSpace (unsafeSlice)
 import Data.Time
 import Data.Vector.Unboxed.Base
 import Data.Word
@@ -98,3 +99,15 @@ main = do
   print $ diffUTCTime y x
   
   putStrLn "Done."
+
+
+mmult arr brr = do
+  let trr = R.transpose brr
+  let (R.Z R.:. h R.:. _) = R.extent arr
+      (R.Z R.:. _ R.:. w) = R.extent brr
+  return
+    $ R.fromFunction (R.ix2 h w)
+    $ \ix -> R.sumAllS $ R.zipWith (*)
+             (unsafeSlice arr (R.Any R.:. (row ix) R.:. R.All))
+             (unsafeSlice trr (R.Any R.:. (col ix) R.:. R.All))
+
