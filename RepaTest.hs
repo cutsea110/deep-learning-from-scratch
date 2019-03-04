@@ -115,22 +115,3 @@ shapeMod4 :: DIM4 -> DIM4 -> DIM4
 shapeMod4 (sh1 :. n) (sh2 :. m) = shapeMod3 sh1 sh2 :. (n `mod` m)
 shapeMod5 :: DIM5 -> DIM5 -> DIM5
 shapeMod5 (sh1 :. n) (sh2 :. m) = shapeMod4 sh1 sh2 :. (n `mod` m)
-
-{--
-adjust x1 x2 = (f1, f2)
-  where
-    (sh1, sh2) = (extent x1, extent x2)
-    (sh, sh1', sh2') = adjustShape sh1 sh2
-    f1 = fromFunction sh (\ix -> reshape sh1 x1 ! shapeMod2 ix sh1)
-    f2 = fromFunction sh (\ix -> reshape sh2 x2 ! shapeMod2 ix sh2)
---}
-
-adjustShape sh1 sh2 = (shapeOfList (zipWith p d1' d2'), shapeOfList d1', shapeOfList d2')
-  where
-    (r1, r2) = (rank sh1, rank sh2)
-    (d1, d2) = (listOfShape sh1, listOfShape sh2)
-    (d1', d2') = if r1 > r2 then (d1, d2 ++ take (r1 - r2) (repeat 1)) else (d1 ++ take (r2 - r1) (repeat 1), d2)
-    p a b | a > b && a `mod` b == 0 = a
-          | a < b && b `mod` a == 0 = b
-          | a == b                  = a
-          | otherwise               = error "Unmatch dimensions."

@@ -31,7 +31,7 @@ adjust x1 x2 = (f1, f2)
     (sh1, sh2) = (R.extent x1, R.extent x2)
     (r1, r2) = (R.rank sh1, R.rank sh2)
     (d1, d2) = (R.listOfShape sh1, R.listOfShape sh2)
-    (d1', d2') = if r1 > r2 then (d1, d2 ++ take (r1 - r2) (repeat 1)) else (d1 ++ take (r2 - r1) (repeat 1), d2)
+    (d1', d2') = if r1 > r2 then (d1, d2 ++ replicate (r1 - r2) 1) else (d1 ++ replicate (r2 - r1) 1, d2)
     p a b | a > b && a `mod` b == 0 = a
           | a < b && b `mod` a == 0 = b
           | a == b                  = a
@@ -40,6 +40,16 @@ adjust x1 x2 = (f1, f2)
     sh = R.shapeOfList dims
     f1 = R.fromFunction sh (\ix -> x1 R.! (R.shapeOfList (take r1 (zipWith div (R.listOfShape ix) t1s))))
     f2 = R.fromFunction sh (\ix -> x2 R.! (R.shapeOfList (take r2 (zipWith div (R.listOfShape ix) t2s))))
+
+adjustShape sh1 sh2 = (R.shapeOfList (zipWith p d1' d2'), R.shapeOfList d1', R.shapeOfList d2')
+  where
+    (r1, r2) = (R.rank sh1, R.rank sh2)
+    (d1, d2) = (R.listOfShape sh1, R.listOfShape sh2)
+    (d1', d2') = if r1 > r2 then (d1, d2 ++ take (r1 - r2) (repeat 1)) else (d1 ++ take (r2 - r1) (repeat 1), d2)
+    p a b | a > b && a `mod` b == 0 = a
+          | a < b && b `mod` a == 0 = b
+          | a == b                  = a
+          | otherwise               = error "Unmatch dimensions."
 
 infixl 6 +#, -#
 infixl 7 *#, /#
