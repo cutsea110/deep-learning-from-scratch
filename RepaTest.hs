@@ -1,6 +1,7 @@
+{-# LANGUAGE FlexibleContexts #-}
 module RepaTest where
 
-import Data.Array.Repa
+import Data.Array.Repa hiding (zipWith, (++))
 
 -- [[1,2,3]
 -- ,[4,5,6]]
@@ -90,3 +91,46 @@ c1 = fromListUnboxed (ix2 2 1) [10,20]
 -- r1 :: Z :. 3
 -- c1 :: Z :. 2 :. 1
 r1c1 = computeUnboxedS $ (extend (Z :. (2::Int) :. All) r1) +^ (reshape (ix2 2 3) $ extend (Any :. (3::Int)) c1)
+
+upShape1 :: DIM0 -> DIM1
+upShape1 Z = ix1 1
+upShape2 :: DIM1 -> DIM2
+upShape2 (sh :. n) = upShape1 sh :. n
+upShape3 :: DIM2 -> DIM3
+upShape3 (sh :. n) = upShape2 sh :. n
+upShape4 :: DIM3 -> DIM4
+upShape4 (sh :. n) = upShape3 sh :. n
+upShape5 :: DIM4 -> DIM5
+upShape5 (sh :. n) = upShape4 sh :. n
+
+shapeMod0 :: DIM0 -> DIM0 -> DIM0
+shapeMod0 Z Z = Z
+shapeMod1 :: DIM1 -> DIM1 -> DIM1
+shapeMod1 (sh1 :. n) (sh2 :. m) = shapeMod0 sh1 sh2 :. (n `mod` m)
+shapeMod2 :: DIM2 -> DIM2 -> DIM2
+shapeMod2 (sh1 :. n) (sh2 :. m) = shapeMod1 sh1 sh2 :. (n `mod` m)
+shapeMod3 :: DIM3 -> DIM3 -> DIM3
+shapeMod3 (sh1 :. n) (sh2 :. m) = shapeMod2 sh1 sh2 :. (n `mod` m)
+shapeMod4 :: DIM4 -> DIM4 -> DIM4
+shapeMod4 (sh1 :. n) (sh2 :. m) = shapeMod3 sh1 sh2 :. (n `mod` m)
+shapeMod5 :: DIM5 -> DIM5 -> DIM5
+shapeMod5 (sh1 :. n) (sh2 :. m) = shapeMod4 sh1 sh2 :. (n `mod` m)
+
+{--
+adjust x1 x2 = (f1, f2)
+  where
+    (sh1, sh2) = (extent x1, extent x2)
+    (sh, sh1', sh2') = adjustShape sh1 sh2
+    f1 = fromFunction sh (\ix -> reshape sh1 x1 ! shapeMod2 ix sh1)
+    f2 = fromFunction sh (\ix -> reshape sh2 x2 ! shapeMod2 ix sh2)
+--}
+
+adjustShape sh1 sh2 = (shapeOfList (zipWith p d1' d2'), shapeOfList d1', shapeOfList d2')
+  where
+    (r1, r2) = (rank sh1, rank sh2)
+    (d1, d2) = (listOfShape sh1, listOfShape sh2)
+    (d1', d2') = if r1 > r2 then (d1, d2 ++ take (r1 - r2) (repeat 1)) else (d1 ++ take (r2 - r1) (repeat 1), d2)
+    p a b | a > b && a `mod` b == 0 = a
+          | a < b && b `mod` a == 0 = b
+          | a == b                  = a
+          | otherwise               = error "Unmatch dimensions."
