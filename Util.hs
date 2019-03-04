@@ -6,9 +6,6 @@ module Util ( numericalDiff
             -- plot
             , plot
             , plots
-            -- others
-            , rowCount
-            , colCount
             ) where
 
 import qualified Data.Array.Repa as R
@@ -51,12 +48,6 @@ gradientDescent f lr stepNum x = g !! stepNum
     sh = R.extent x
     lr' = R.fromFunction sh (\ix -> lr)
     g = iterate (\s -> R.computeS (s R.-^ lr' R.*^ numericalGradient f s)) x
-
-rowCount :: (R.Source r e) => R.Array r R.DIM2 e -> Int
-rowCount = row . R.extent
-
-colCount :: (R.Source r e) => R.Array r R.DIM2 e -> Int
-colCount = col . R.extent
 
 ----------------------------------------------------------------
 -- Utilities on Gnuplot

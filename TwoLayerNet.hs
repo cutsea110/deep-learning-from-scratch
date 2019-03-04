@@ -66,8 +66,8 @@ randomSampling n (imgs, lbls) = do
       ls = R.backpermute (R.ix2 n lblcsz) (transSh dict) lbls
   return $ (R.computeUnboxedS is, R.computeUnboxedS ls)
     where
-      (imgrsz, imgcsz) = rowCount &&& colCount $ imgs
-      (lblrsz, lblcsz) = rowCount &&& colCount $ lbls
+      (imgrsz, imgcsz) = row &&& col $ R.extent imgs
+      (lblrsz, lblcsz) = row &&& col $ R.extent lbls
       transSh vec (R.Z R.:. r R.:. c) = R.ix2 (vec R.! (R.ix1 r)) c
 
 main = do
@@ -77,7 +77,7 @@ main = do
   -- normalize
   let (xi :: R.Array R.D R.DIM2 Double, xl :: R.Array R.D R.DIM2 Double)
         = (R.map ((/w).fromIntegral) _xi, R.map fromIntegral _xl)
-  let (r, c) = (rowCount xi, colCount xi)
+  let (shxi, r, c) = (R.extent xi, row shxi, col shxi)
   net <- initTwoLayerNet c hiddenSize outputSize (0.0, 1.0) 0.0
   (sImgs, sLbls) <- randomSampling batchSize (xi, xl)
   let z = loss net sImgs sLbls

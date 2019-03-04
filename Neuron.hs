@@ -12,6 +12,7 @@ import Control.Monad.ST
 import Data.List (foldl')
 
 import qualified Data.Array.Repa as R
+import Data.Array.Repa.Eval
 import Data.Array.Repa.Algorithms.Matrix
 
 import Activation
