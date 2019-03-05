@@ -71,8 +71,8 @@ ng f x = R.fromFunction sh (\ix -> (f (fu ix) - f (fl ix)) / h2)
 
 {-# INLINE numericalGradient #-}
 numericalGradient f x = R.fromFunction sh (\ix -> 
-    let xusi = R.zipWith (+) (R.fromFunction sh (\ix' -> if ix == ix' then h else 0)) x
-        xlsi = R.zipWith (-) (R.fromFunction sh (\ix' -> if ix == ix' then h else 0)) x
+    let xusi = R.zipWith (+) (R.fromFunction sh (\ix' -> if ix == ix' then  h else 0)) x
+        xlsi = R.zipWith (+) (R.fromFunction sh (\ix' -> if ix == ix' then -h else 0)) x
     in (f xusi - f xlsi) / (2*h))
   where
     h = 1e-4
