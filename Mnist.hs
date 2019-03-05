@@ -5,10 +5,8 @@ module Mnist ( DataSet
                --
              , loadTrain
              , loadTest
-             , freezeTrain
-             , freezeTest
-             , reviveTrain
-             , reviveTest
+             , freeze
+             , revive
                --
              , draw
              , imageAt
@@ -80,8 +78,8 @@ toInt = foldl' (\b a -> b * 256 + fromIntegral a) 0 . toWord8List
 mnistImage = 2051
 mnistLabel = 2049
 
-load :: FilePath -> IO (Matrix Word8)
-load f = do
+download' :: FilePath -> IO (Matrix Word8)
+download' f = do
   download f
   bs <- fmap GZ.decompress (BL.readFile $ mkPath f)
   let (typ,  r) = toInt *** id $ BL.splitAt 4 bs
@@ -110,6 +108,29 @@ loadLabel bs = do
   let (cnt, r) = toInt *** id $ BL.splitAt 4 bs
   return $ R.fromListUnboxed (R.Z R.:. cnt R.:. 1) $ toWord8List r
 
+load :: ((R.DIM2, FilePath), FilePath) -> IO (Matrix Word8)
+load ((sh, flzf), gzf) = do
+  exist <- doesFileExist $ mkPath flzf
+  if exist
+    then do
+    putStrLn "freezed file found."
+    revive flzf sh
+    else do
+    ret <- download' gzf
+    freeze ret flzf
+    return ret
+
+freeze :: Matrix Word8 -> FilePath -> IO ()
+freeze mx f = do
+  putStr "Freezing ... "
+  BL.writeFile (mkPath f) $ GZ.compress $ encode $ R.toUnboxed mx
+  putStrLn "Done."
+
+revive :: (V.Unbox e, Binary e) => FilePath -> sh -> IO (R.Array R.U sh e)
+revive f sh = do
+  bs <- BL.readFile $ mkPath f
+  return $ R.fromUnboxed sh $ decode $ GZ.decompress bs
+
 imageAt :: Matrix Word8 -> Int -> Vector Word8
 imageAt imgs i = R.computeUnboxedS $ R.slice imgs (R.Any R.:. i R.:. R.All)
 
@@ -131,23 +152,11 @@ draw ds i = do
   drawAA img
   putStrLn $ "Answer " ++ show (lbl R.! (R.Z R.:.0))
 
-load' :: ((R.DIM2, FilePath), FilePath) -> IO (Matrix Word8)
-load' ((sh, flzf), gzf) = do
-  exist <- doesFileExist $ mkPath flzf
-  if exist
-    then do
-    putStrLn "freezed file found."
-    revive flzf sh
-    else do
-    ret <- load gzf
-    freeze ret flzf
-    return ret
-
 loadTrain :: IO (Matrix Word8, Matrix Word8)
 loadTrain = do
   putStrLn "Loading training samples ... "
-  xi <- load' ((R.ix2 60000 784, "train-images.pkl"), "train-images-idx3-ubyte.gz")
-  xl <- load' ((R.ix2 60000 1, "train-labels.pkl"), "train-labels-idx1-ubyte.gz")
+  xi <- load ((R.ix2 60000 784, "train-images.pkl"), "train-images-idx3-ubyte.gz")
+  xl <- load ((R.ix2 60000 1, "train-labels.pkl"), "train-labels-idx1-ubyte.gz")
   putStrLn "Displaying the first sample."
   draw (xi, xl) 0
   putStrLn "Done."
@@ -156,46 +165,9 @@ loadTrain = do
 loadTest :: IO (Matrix Word8, Matrix Word8)
 loadTest = do
   putStrLn "Loading test samples ... "
-  xi <- load' ((R.ix2 10000 784, "t10k-images.pkl"), "t10k-images-idx3-ubyte.gz")
-  xl <- load' ((R.ix2 10000 1, "t10k-labels.pkl"), "t10k-labels-idx1-ubyte.gz")
+  xi <- load ((R.ix2 10000 784, "t10k-images.pkl"), "t10k-images-idx3-ubyte.gz")
+  xl <- load ((R.ix2 10000 1, "t10k-labels.pkl"), "t10k-labels-idx1-ubyte.gz")
   putStrLn "Displaying the first sample."
   draw (xi, xl) 0
   putStrLn "Done."
   return (xi, xl)
-
-freeze :: Matrix Word8 -> FilePath -> IO ()
-freeze mx f = do
-  putStr "Freezing ... "
-  BL.writeFile (mkPath f) $ GZ.compress $ encode $ R.toUnboxed mx
-  putStrLn "Done."
-
-freezeTrain :: (Matrix Word8, Matrix Word8) -> IO ()
-freezeTrain (xi, xl) = do
-  freeze xi "train-images.pkl"
-  freeze xl "train-labels.pkl"
-
-freezeTest :: (Matrix Word8, Matrix Word8) -> IO ()
-freezeTest (ti, tl) = do
-  freeze ti "t10k-images.pkl"
-  freeze tl "t10k-labels.pkl"
-
-revive :: (V.Unbox e, Binary e) => FilePath -> sh -> IO (R.Array R.U sh e)
-revive f sh = do
-  bs <- BL.readFile $ mkPath f
-  return $ R.fromUnboxed sh $ decode $ GZ.decompress bs
-
--- | [WANTFIX] I'd NOT like to direct shape.
-reviveTrain :: IO (Matrix Word8, Matrix Word8)
-reviveTrain = do
-  putStr "Revive ... "
-  xi <- revive "train-images.pkl" (R.ix2 60000 784)
-  xl <- revive "train-labels.pkl" (R.ix2 60000 1)
-  putStrLn "Done."
-  return (xi, xl)
-
--- | [WANTFIX] I'd NOT like to direct shape.
-reviveTest :: IO (Matrix Word8, Matrix Word8)
-reviveTest = do
-  ti <- revive "t10k-images.pkl" (R.ix2 10000 784)
-  tl <- revive "t10k-labels.pkl" (R.ix2 10000 1)
-  return (ti, tl)
