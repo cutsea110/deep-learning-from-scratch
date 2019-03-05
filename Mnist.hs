@@ -71,7 +71,7 @@ downloadMnist = do
     download f
   
 toWord8List :: BL.ByteString -> [Word8]
-toWord8List = map (read . show . fromEnum) . BL.unpack
+toWord8List = BL.unpack
 
 toInt :: Integral a => BL.ByteString -> a
 toInt = foldl' (\b a -> b * 256 + fromIntegral a) 0 . toWord8List
@@ -102,12 +102,12 @@ loadImage bs = do
       (w,  r') = toInt *** id $ BL.splitAt 4 r
       (h, r'') = toInt *** id $ BL.splitAt 4 r'
       sz = w * h
-  return $ R.fromListUnboxed (R.Z R.:. cnt R.:. sz) $ toWord8List r''
+  return $! R.fromListUnboxed (R.Z R.:. cnt R.:. sz) $ toWord8List r''
 
 loadLabel :: BL.ByteString -> IO (Matrix Word8)
 loadLabel bs = do
   let (cnt, r) = toInt *** id $ BL.splitAt 4 bs
-  return $ R.fromListUnboxed (R.Z R.:. cnt R.:. 1) $ toWord8List r
+  return $! R.fromListUnboxed (R.Z R.:. cnt R.:. 1) $ toWord8List r
 
 imageAt :: Matrix Word8 -> Int -> Vector Word8
 imageAt imgs i = R.computeUnboxedS $ R.slice imgs (R.Any R.:. i R.:. R.All)

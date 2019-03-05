@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, TypeOperators, ScopedTypeVariables, AllowAmbiguousTypes #-}
+{-# LANGUAGE FlexibleContexts, TypeOperators, ScopedTypeVariables, AllowAmbiguousTypes,BangPatterns #-}
 module TwoLayerNet where
 
 import Control.Arrow ((&&&))
@@ -80,7 +80,7 @@ fu tix = R.fromFunction sh (\ix -> if ix == tix then xu R.! ix else x R.! ix)
 fl tix = R.fromFunction sh (\ix -> if ix == tix then xl R.! ix else x R.! ix)
 
 main = do
-  let (hiddenSize, outputSize, batchSize, w) = (100, 10, 100, fromIntegral (maxBound :: Word8)::Double)
+  let (hiddenSize, outputSize, batchSize, w) = (50, 10, 100, fromIntegral (maxBound :: Word8)::Double)
 
   (_xi, _xl) <- loadTrain
   -- normalize
@@ -88,7 +88,7 @@ main = do
         = (R.map ((/w).fromIntegral) _xi, R.map fromIntegral _xl)
   let (shxi, r, c) = (R.extent xi, row shxi, col shxi)
   net <- initTwoLayerNet c hiddenSize outputSize (0.0, 1.0) 0.0
-  (sImgs, sLbls) <- randomSampling batchSize (xi, xl)
+  (!sImgs, !sLbls) <- randomSampling batchSize (xi, xl)
   let z = loss net sImgs sLbls
   let net'@((a1,w1,b1):(a2,w2,b2):[]) = net
   let fw1 w1' = loss [(a1,R.computeUnboxedS w1',b1),(a2,w2,b2)] sImgs sLbls
