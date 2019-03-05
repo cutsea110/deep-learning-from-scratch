@@ -149,14 +149,24 @@ loadWith (imgFile, lblFile) = do
   return (xi, xl)
 
 loadTrain :: IO (Matrix Word8, Matrix Word8)
-loadTrain = loadWith ("train-images-idx3-ubyte.gz", "train-labels-idx1-ubyte.gz")
+loadTrain = do
+  bi <- doesFileExist $ mkPath "train-images.pkl"
+  bl <- doesFileExist $ mkPath "train-labels.pkl"
+  if (bi && bl)
+    then do
+    reviveTrain
+    else do
+    ret@(xi, xl) <- loadWith ("train-images-idx3-ubyte.gz", "train-labels-idx1-ubyte.gz")
+    freezeTrain ret
+    return ret
+
 loadTest :: IO (Matrix Word8, Matrix Word8)
 loadTest  = loadWith ("t10k-images-idx3-ubyte.gz", "t10k-labels-idx1-ubyte.gz")
 
 freeze :: Matrix Word8 -> FilePath -> IO ()
 freeze mx f = do
   putStr "Freezing ... "
-  BL.writeFile f $ GZ.compress $ encode $ R.toUnboxed mx
+  BL.writeFile (mkPath f) $ GZ.compress $ encode $ R.toUnboxed mx
   putStrLn "Done."
 
 freezeTrain :: (Matrix Word8, Matrix Word8) -> IO ()
@@ -171,7 +181,7 @@ freezeTest (ti, tl) = do
 
 revive :: (V.Unbox e, Binary e) => FilePath -> sh -> IO (R.Array R.U sh e)
 revive f sh = do
-  bs <- BL.readFile f
+  bs <- BL.readFile $ mkPath f
   return $ R.fromUnboxed sh $ decode $ GZ.decompress bs
 
 -- | [WANTFIX] I'd NOT like to direct shape.
