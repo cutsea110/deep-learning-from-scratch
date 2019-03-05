@@ -5,8 +5,6 @@ module Mnist ( DataSet
                --
              , loadTrain
              , loadTest
-             , freeze
-             , revive
                --
              , draw
              , imageAt
@@ -16,9 +14,7 @@ module Mnist ( DataSet
 import GHC.Int
 import Control.Arrow ((&&&),(***))
 import Control.Monad
-import qualified Codec.Compression.GZip as GZ ( compress
-                                              , decompress
-                                              )
+import qualified Codec.Compression.GZip as GZ (compress, decompress)
 import qualified Data.Array.Repa as R
 import qualified Data.ByteString.Lazy as BL
 import Data.Bool (bool)
@@ -27,10 +23,7 @@ import Data.List (foldl', unfoldr)
 import qualified Data.Vector.Unboxed.Base as V
 import Data.Vector.Binary
 import Data.Word
-import Network.HTTP.Simple ( parseRequest
-                           , httpLBS
-                           , getResponseBody
-                           )
+import Network.HTTP.Simple (parseRequest, httpLBS, getResponseBody)
 import System.Directory (createDirectoryIfMissing, doesDirectoryExist, doesFileExist)
 
 type DataSet = (Matrix Word8, Matrix Word8)
@@ -78,8 +71,8 @@ toInt = foldl' (\b a -> b * 256 + fromIntegral a) 0 . toWord8List
 mnistImage = 2051
 mnistLabel = 2049
 
-download' :: FilePath -> IO (Matrix Word8)
-download' f = do
+load :: FilePath -> IO (Matrix Word8)
+load f = do
   download f
   bs <- fmap GZ.decompress (BL.readFile $ mkPath f)
   let (typ,  r) = toInt *** id $ BL.splitAt 4 bs
@@ -101,35 +94,28 @@ loadImage bs = do
       (w,  r') = toInt *** id $ BL.splitAt 4 r
       (h, r'') = toInt *** id $ BL.splitAt 4 r'
       sz = w * h
-  return $ R.fromListUnboxed (R.Z R.:. cnt R.:. sz) $ toWord8List r''
+  return $ R.fromListUnboxed (R.ix2 cnt sz) $ BL.unpack r''
 
 loadLabel :: BL.ByteString -> IO (Matrix Word8)
 loadLabel bs = do
   let (cnt, r) = toInt *** id $ BL.splitAt 4 bs
-  return $ R.fromListUnboxed (R.Z R.:. cnt R.:. 1) $ toWord8List r
+  return $ R.fromListUnboxed (R.ix2 cnt 1) $ BL.unpack r
 
-load :: ((R.DIM2, FilePath), FilePath) -> IO (Matrix Word8)
-load ((sh, flzf), gzf) = do
-  exist <- doesFileExist $ mkPath flzf
-  if exist
-    then do
-    putStrLn "freezed file found."
-    revive flzf sh
-    else do
-    ret <- download' gzf
-    freeze ret flzf
-    return ret
-
-freeze :: Matrix Word8 -> FilePath -> IO ()
-freeze mx f = do
-  putStr "Freezing ... "
-  BL.writeFile (mkPath f) $ GZ.compress $ encode $ R.toUnboxed mx
-  putStrLn "Done."
-
-revive :: (V.Unbox e, Binary e) => FilePath -> sh -> IO (R.Array R.U sh e)
-revive f sh = do
-  bs <- BL.readFile $ mkPath f
-  return $ R.fromUnboxed sh $ decode $ GZ.decompress bs
+loadTrain :: IO (Matrix Word8, Matrix Word8)
+loadTrain = do
+  xi <- load "train-images-idx3-ubyte.gz"
+  xl <- load "train-labels-idx1-ubyte.gz"
+  putStrLn "Displaying the first sample."
+  draw (xi, xl) 0
+  return (xi, xl)
+  
+loadTest :: IO (Matrix Word8, Matrix Word8)
+loadTest = do
+  xi <- load "t10k-images-idx3-ubyte.gz"
+  xl <- load "t10k-labels-idx1-ubyte.gz"
+  putStrLn "Displaying the first sample."
+  draw (xi, xl) 0
+  return (xi, xl)
 
 imageAt :: Matrix Word8 -> Int -> Vector Word8
 imageAt imgs i = R.computeUnboxedS $ R.slice imgs (R.Any R.:. i R.:. R.All)
@@ -151,23 +137,3 @@ draw ds i = do
   putStrLn $ "Sample " ++ show i
   drawAA img
   putStrLn $ "Answer " ++ show (lbl R.! (R.Z R.:.0))
-
-loadTrain :: IO (Matrix Word8, Matrix Word8)
-loadTrain = do
-  putStrLn "Loading training samples ... "
-  xi <- load ((R.ix2 60000 784, "train-images.pkl"), "train-images-idx3-ubyte.gz")
-  xl <- load ((R.ix2 60000 1, "train-labels.pkl"), "train-labels-idx1-ubyte.gz")
-  putStrLn "Displaying the first sample."
-  draw (xi, xl) 0
-  putStrLn "Done."
-  return (xi, xl)
-
-loadTest :: IO (Matrix Word8, Matrix Word8)
-loadTest = do
-  putStrLn "Loading test samples ... "
-  xi <- load ((R.ix2 10000 784, "t10k-images.pkl"), "t10k-images-idx3-ubyte.gz")
-  xl <- load ((R.ix2 10000 1, "t10k-labels.pkl"), "t10k-labels-idx1-ubyte.gz")
-  putStrLn "Displaying the first sample."
-  draw (xi, xl) 0
-  putStrLn "Done."
-  return (xi, xl)
