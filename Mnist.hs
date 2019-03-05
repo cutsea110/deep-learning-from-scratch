@@ -62,11 +62,8 @@ download f = do
   where
     mkReq = parseRequest . mkURL
 
-toWord8List :: BL.ByteString -> [Word8]
-toWord8List = map (read . show . fromEnum) . BL.unpack
-
 toInt :: Integral a => BL.ByteString -> a
-toInt = foldl' (\b a -> b * 256 + fromIntegral a) 0 . toWord8List
+toInt = foldl' (\b a -> b * 256 + fromIntegral a) 0 . BL.unpack
 
 mnistImage = 2051
 mnistLabel = 2049
