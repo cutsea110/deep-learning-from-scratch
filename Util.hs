@@ -20,14 +20,13 @@ import Graphics.Gnuplot.Simple
 import qualified Graphics.Gnuplot.Value.Tuple as Tuple
 
 -- mmult over D
-mmult :: (R.Source r1 a, R.Source r2 a, Monad m, Num a) =>
-  R.Array r2 R.DIM2 a -> R.Array r1 R.DIM2 a -> m (R.Array R.D R.DIM2 a)
+mmult :: (R.Source r1 a, R.Source r2 a, Num a) =>
+  R.Array r2 R.DIM2 a -> R.Array r1 R.DIM2 a -> R.Array R.D R.DIM2 a
 mmult arr brr = do
   let trr = R.transpose brr
   let (R.Z R.:. h R.:. _) = R.extent arr
       (R.Z R.:. _ R.:. w) = R.extent brr
-  return
-    $ R.fromFunction (R.ix2 h w)
+  R.fromFunction (R.ix2 h w)
     $ \ix -> R.sumAllS $ R.zipWith (*)
              (unsafeSlice arr (R.Any R.:. (row ix) R.:. R.All))
              (unsafeSlice trr (R.Any R.:. (col ix) R.:. R.All))

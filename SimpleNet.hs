@@ -21,16 +21,9 @@ t = R.fromListUnboxed (R.ix2 1 3) [0, 0, 1]
 
 predict x = mmult x w
 
-loss x t = do
-  s <- predict x
-  return $ ceeS (softmaxS s) t
+loss x t = ceeS (softmaxS (predict x)) t
 
-g w = do
-  s <- mmult x w
-  return $ ceeS (softmaxS s) t
-
-
-
+g w = ceeS (softmaxS (mmult x w)) t
 
 predictS x = mmultS x w
 
@@ -52,3 +45,6 @@ lossP x t = do
 
 dW :: R.Array R.U R.DIM2 Double
 dW = R.computeS $ numericalGradient f w
+
+dW' :: R.Array R.U R.DIM2 Double
+dW' = R.computeUnboxedS $ numericalGradient g w
