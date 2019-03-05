@@ -1,5 +1,6 @@
 {-# LANGUAGE TypeOperators #-}
 module Util ( mmult
+            , genMaps -- test
               -- numerical gradient etc.
             , numericalDiff
             , genGrad
@@ -45,6 +46,24 @@ genGrad f x = \a -> numDiff * a + b
     b = f x - numDiff * x
 
 -- calculate numerical gradient
+genMaps :: (R.Shape sh, R.Source r e, Unbox e, Fractional e) =>
+  R.Array r sh e -> (R.Array R.U sh e, R.Array R.U sh e)
+genMaps x = (xu', xl')
+  where
+    h = 1e-4
+    (xu, xl) = (R.map (+h) x, R.map (\x -> x - h) x)
+    (xu', xl') = (R.computeUnboxedS xu, R.computeUnboxedS xl)
+
+ng :: (R.Shape sh, R.Source r e, Unbox e, Fractional e, Fractional a) =>
+  (R.Array R.D sh e -> a) -> R.Array r sh e -> R.Array R.D sh a
+ng f x = R.fromFunction sh (\ix -> (f (fu ix) - f (fl ix)) / h2)
+  where
+    (h,h2) = (1e-4, 2*h)
+    sh = R.extent x
+    (xu, xl) = genMaps x
+    fu tix = R.fromFunction sh (\ix -> if ix == tix then xu R.! ix else x R.! ix)
+    fl tix = R.fromFunction sh (\ix -> if ix == tix then xl R.! ix else x R.! ix)
+
 numericalGradient f x = R.fromFunction sh (\ix -> (f (xus R.! ix) - f (xls R.! ix)) / (2*h))
   where
     h = 1e-4

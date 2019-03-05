@@ -70,6 +70,15 @@ randomSampling n (imgs, lbls) = do
       (lblrsz, lblcsz) = row &&& col $ R.extent lbls
       transSh vec (R.Z R.:. r R.:. c) = R.ix2 (vec R.! (R.ix1 r)) c
 
+
+x :: R.Array R.U R.DIM2 Double
+x = R.fromListUnboxed (R.ix2 2 3) [1..6]
+
+(xu, xl) = genMaps x
+sh = R.extent x
+fu tix = R.fromFunction sh (\ix -> if ix == tix then xu R.! ix else x R.! ix)
+fl tix = R.fromFunction sh (\ix -> if ix == tix then xl R.! ix else x R.! ix)
+
 main = do
   let (hiddenSize, outputSize, batchSize, w) = (100, 10, 100, fromIntegral (maxBound :: Word8)::Double)
 

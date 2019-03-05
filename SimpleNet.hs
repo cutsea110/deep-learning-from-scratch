@@ -19,6 +19,19 @@ x = R.fromListUnboxed (R.ix2 1 2) [0.6, 0.9]
 t :: R.Array R.U R.DIM2 Double
 t = R.fromListUnboxed (R.ix2 1 3) [0, 0, 1]
 
+predict x = mmult x w
+
+loss x t = do
+  s <- predict x
+  return $ ceeS (softmaxS s) t
+
+g w = do
+  s <- mmult x w
+  return $ ceeS (softmaxS s) t
+
+
+
+
 predictS x = mmultS x w
 
 lossS x t = ceeS (softmaxS (predictS x)) t
