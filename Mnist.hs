@@ -131,31 +131,37 @@ draw ds i = do
   drawAA img
   putStrLn $ "Answer " ++ show (lbl R.! (R.Z R.:.0))
 
-loadWith :: (FilePath, FilePath) -> IO (Matrix Word8, Matrix Word8)
-loadWith (imgFile, lblFile) = do
-  xi <- load imgFile
-  putStrLn $ "image's extent is ... " ++ show (R.extent xi) ++ " realized."
-  xl <- load lblFile
-  putStrLn $ "label's extent is ... " ++ show (R.extent xl) ++ " realized."
+load' :: ((R.DIM2, FilePath), FilePath) -> IO (Matrix Word8)
+load' ((sh, flzf), gzf) = do
+  exist <- doesFileExist $ mkPath flzf
+  if exist
+    then do
+    putStrLn "freezed file found."
+    revive flzf sh
+    else do
+    ret <- load gzf
+    freeze ret flzf
+    return ret
+
+loadTrain :: IO (Matrix Word8, Matrix Word8)
+loadTrain = do
+  putStrLn "Loading training samples ... "
+  xi <- load' ((R.ix2 60000 784, "train-images.pkl"), "train-images-idx3-ubyte.gz")
+  xl <- load' ((R.ix2 60000 1, "train-labels.pkl"), "train-labels-idx1-ubyte.gz")
   putStrLn "Displaying the first sample."
   draw (xi, xl) 0
   putStrLn "Done."
   return (xi, xl)
 
-loadTrain :: IO (Matrix Word8, Matrix Word8)
-loadTrain = do
-  bi <- doesFileExist $ mkPath "train-images.pkl"
-  bl <- doesFileExist $ mkPath "train-labels.pkl"
-  if (bi && bl)
-    then do
-    reviveTrain
-    else do
-    ret@(xi, xl) <- loadWith ("train-images-idx3-ubyte.gz", "train-labels-idx1-ubyte.gz")
-    freezeTrain ret
-    return ret
-
 loadTest :: IO (Matrix Word8, Matrix Word8)
-loadTest  = loadWith ("t10k-images-idx3-ubyte.gz", "t10k-labels-idx1-ubyte.gz")
+loadTest = do
+  putStrLn "Loading test samples ... "
+  xi <- load' ((R.ix2 10000 784, "t10k-images.pkl"), "t10k-images-idx3-ubyte.gz")
+  xl <- load' ((R.ix2 10000 1, "t10k-labels.pkl"), "t10k-labels-idx1-ubyte.gz")
+  putStrLn "Displaying the first sample."
+  draw (xi, xl) 0
+  putStrLn "Done."
+  return (xi, xl)
 
 freeze :: Matrix Word8 -> FilePath -> IO ()
 freeze mx f = do
