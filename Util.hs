@@ -1,5 +1,6 @@
 {-# LANGUAGE TypeOperators #-}
 module Util ( mmult
+            , ng -- test
             , genMaps -- test
               -- numerical gradient etc.
             , numericalDiff

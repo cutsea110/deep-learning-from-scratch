@@ -3,18 +3,8 @@ module Main where
 import qualified Data.Array.Repa as R
 
 import Activation (sigmoid)
-import Mnist (downloadMnist, loadTrain, loadTest, draw)
+import Mnist (loadTrain, loadTest, draw)
 import Neuron (forwardS, forwardP)
-
-prepareMnist = do
-  downloadMnist
-
-  (xl, xi) <- loadTrain
-  (tl, ti) <- loadTest
-
-  -- TODO: store Array as Pickle like
-
-  print "Done."
 
 main :: IO ()
 main = do
