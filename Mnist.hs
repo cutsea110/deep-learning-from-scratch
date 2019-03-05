@@ -3,7 +3,6 @@ module Mnist ( DataSet
              , Matrix
              , Vector
                --
-             , downloadMnist
              , loadTrain
              , loadTest
              , freezeTrain
@@ -72,11 +71,6 @@ download f = do
   where
     mkReq = parseRequest . mkURL
 
-downloadMnist = do
-  mkAssetsDir
-  forM_ keyFiles $ \(_, f) -> do
-    download f
-  
 toWord8List :: BL.ByteString -> [Word8]
 toWord8List = map (read . show . fromEnum) . BL.unpack
 

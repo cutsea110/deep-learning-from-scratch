@@ -16,7 +16,7 @@ import Mnist (DataSet, Matrix, Vector, imageAt, labelAt)
 import Neuron (forwardS, forwardP)
 import Util
 
-import Mnist (downloadMnist, loadTrain, loadTest, draw)
+import Mnist (loadTrain, loadTest, draw)
 
 initLayer :: (Int, Int) -> (Double, Double) -> IO (R.Array R.U R.DIM2 Double)
 initLayer (iSz, hSz) (l, u) = do
@@ -70,15 +70,6 @@ randomSampling n (imgs, lbls) = do
       (lblrsz, lblcsz) = row &&& col $ R.extent lbls
       transSh vec (R.Z R.:. r R.:. c) = R.ix2 (vec R.! (R.ix1 r)) c
 
-
-x :: R.Array R.U R.DIM2 Double
-x = R.fromListUnboxed (R.ix2 2 3) [1..6]
-
-(xu, xl) = genMaps x
-sh = R.extent x
-fu tix = R.fromFunction sh (\ix -> if ix == tix then xu R.! ix else x R.! ix)
-fl tix = R.fromFunction sh (\ix -> if ix == tix then xl R.! ix else x R.! ix)
-
 main = do
   let (hiddenSize, outputSize, batchSize, w) = (100, 10, 100, fromIntegral (maxBound :: Word8)::Double)
 
@@ -89,22 +80,16 @@ main = do
   let (shxi, r, c) = (R.extent xi, row shxi, col shxi)
   net <- initTwoLayerNet c hiddenSize outputSize (0.0, 1.0) 0.0
   (sImgs, sLbls) <- randomSampling batchSize (xi, xl)
-  let z = loss net sImgs sLbls
-  let net'@((a1,w1,b1):(a2,w2,b2):[]) = net
-  let fw1 w1' = loss [(a1,R.computeUnboxedS w1',b1),(a2,w2,b2)] sImgs sLbls
-  let gradw1 = numericalGradient fw1 w1
-  --
-  x <- getCurrentTime
-  print x
+
+  -- test
   let ret@((gw1, gb1):(gw2, gb2):[]) = numGrad net sImgs sLbls
-  print $ R.computeUnboxedS gw1
-  print $ R.computeUnboxedS gb1
-  print $ R.computeUnboxedS gw2
+  print "gb2"
   print $ R.computeUnboxedS gb2
-  y <- getCurrentTime
-  print y
+  print "gb1"
+  print $ R.computeUnboxedS gb1
+  print "gw2"
+  print $ R.computeUnboxedS gw2
+--  print "gw1"
+--  print $ R.computeUnboxedS gw1
 
-  print $ diffUTCTime y x
-  
   putStrLn "Done."
-
