@@ -6,6 +6,10 @@ module Mnist ( DataSet
              , downloadMnist
              , loadTrain
              , loadTest
+             , freezeTrain
+             , freezeTest
+             , reviveTrain
+             , reviveTest
                --
              , draw
              , imageAt
@@ -21,7 +25,10 @@ import qualified Codec.Compression.GZip as GZ ( compress
 import qualified Data.Array.Repa as R
 import qualified Data.ByteString.Lazy as BL
 import Data.Bool (bool)
+import Data.Binary (Binary, encode, decode)
 import Data.List (foldl', unfoldr)
+import qualified Data.Vector.Unboxed.Base as V
+import Data.Vector.Binary
 import Data.Word
 import Network.HTTP.Simple ( parseRequest
                            , httpLBS
@@ -145,3 +152,40 @@ loadTrain :: IO (Matrix Word8, Matrix Word8)
 loadTrain = loadWith ("train-images-idx3-ubyte.gz", "train-labels-idx1-ubyte.gz")
 loadTest :: IO (Matrix Word8, Matrix Word8)
 loadTest  = loadWith ("t10k-images-idx3-ubyte.gz", "t10k-labels-idx1-ubyte.gz")
+
+freeze :: Matrix Word8 -> FilePath -> IO ()
+freeze mx f = do
+  putStr "Freezing ... "
+  BL.writeFile f $ GZ.compress $ encode $ R.toUnboxed mx
+  putStrLn "Done."
+
+freezeTrain :: (Matrix Word8, Matrix Word8) -> IO ()
+freezeTrain (xi, xl) = do
+  freeze xi "train-images.pkl"
+  freeze xl "train-labels.pkl"
+
+freezeTest :: (Matrix Word8, Matrix Word8) -> IO ()
+freezeTest (ti, tl) = do
+  freeze ti "t10k-images.pkl"
+  freeze tl "t10k-labels.pkl"
+
+revive :: (V.Unbox e, Binary e) => FilePath -> sh -> IO (R.Array R.U sh e)
+revive f sh = do
+  bs <- BL.readFile f
+  return $ R.fromUnboxed sh $ decode $ GZ.decompress bs
+
+-- | [WANTFIX] I'd NOT like to direct shape.
+reviveTrain :: IO (Matrix Word8, Matrix Word8)
+reviveTrain = do
+  putStr "Revive ... "
+  xi <- revive "train-images.pkl" (R.ix2 60000 784)
+  xl <- revive "train-labels.pkl" (R.ix2 60000 1)
+  putStrLn "Done."
+  return (xi, xl)
+
+-- | [WANTFIX] I'd NOT like to direct shape.
+reviveTest :: IO (Matrix Word8, Matrix Word8)
+reviveTest = do
+  ti <- revive "t10k-images.pkl" (R.ix2 10000 784)
+  tl <- revive "t10k-labels.pkl" (R.ix2 10000 1)
+  return (ti, tl)
