@@ -19,8 +19,10 @@ import Data.Array.Repa.Operators.IndexSpace (unsafeSlice)
 import Data.Vector.Unboxed.Base
 import Graphics.Gnuplot.Simple
 import qualified Graphics.Gnuplot.Value.Tuple as Tuple
+import Debug.Trace
 
 -- mmult over D
+{-# INLINABLE mmult #-}
 mmult :: (R.Source r1 a, R.Source r2 a, Num a) =>
   R.Array r2 R.DIM2 a -> R.Array r1 R.DIM2 a -> R.Array R.D R.DIM2 a
 mmult arr brr = do
@@ -32,12 +34,14 @@ mmult arr brr = do
              (unsafeSlice arr (R.Any R.:. (row ix) R.:. R.All))
              (unsafeSlice trr (R.Any R.:. (col ix) R.:. R.All))
 
+{-# INLINABLE numericalDiff #-}
 -- calculate numerical difference
 numericalDiff :: Fractional a => (a -> a) -> a -> a
 numericalDiff f x = (f (x+h) - f (x-h)) / (2*h)
   where
     h = 1e-4
 
+{-# INLINABLE genGrad #-}
 genGrad :: Fractional a => (a -> a) -> a -> a -> a
 genGrad f x = \a -> numDiff * a + b
   where
@@ -46,6 +50,7 @@ genGrad f x = \a -> numDiff * a + b
     b = f x - numDiff * x
 
 -- calculate numerical gradient
+{-# INLINABLE genMaps #-}
 genMaps :: (R.Shape sh, R.Source r e, Unbox e, Fractional e) =>
   R.Array r sh e -> (R.Array R.U sh e, R.Array R.U sh e)
 genMaps x = (xu', xl')
@@ -54,6 +59,7 @@ genMaps x = (xu', xl')
     (xu, xl) = (R.map (+h) x, R.map (\x -> x - h) x)
     (xu', xl') = (R.computeUnboxedS xu, R.computeUnboxedS xl)
 
+{-# INLINABLE ng #-}
 ng :: (R.Shape sh, R.Source r e, Unbox e, Fractional e, Fractional a) =>
   (R.Array R.D sh e -> a) -> R.Array r sh e -> R.Array R.D sh a
 ng f x = R.fromFunction sh (\ix -> (f (fu ix) - f (fl ix)) / h2)
@@ -64,19 +70,17 @@ ng f x = R.fromFunction sh (\ix -> (f (fu ix) - f (fl ix)) / h2)
     fu tix = R.fromFunction sh (\ix -> if ix == tix then xu R.! ix else x R.! ix)
     fl tix = R.fromFunction sh (\ix -> if ix == tix then xl R.! ix else x R.! ix)
 
-numericalGradient f x = R.fromFunction sh (\ix -> (f (xus R.! ix) - f (xls R.! ix)) / (2*h))
+{-# INLINE numericalGradient #-}
+numericalGradient f x = R.fromFunction sh (\ix -> 
+    let xusi = R.zipWith (+) (R.fromFunction sh (\ix' -> if ix == ix' then  h else 0)) x
+        xlsi = R.zipWith (+) (R.fromFunction sh (\ix' -> if ix == ix' then -h else 0)) x
+    in (f xusi - f xlsi) / (2*h))
   where
     h = 1e-4
     sh = R.extent x
-    (xus, xls) = (gen h x (+), gen h x (-))
 
-gen h x op = R.fromFunction sh (R.fromFunction sh . d op)
-  where
-    sh = R.extent x
-    d op ix ix' | ix == ix' = x R.! ix' `op` h
-                | otherwise = x R.! ix'
-
-gradientDescent :: (R.Source r e, R.Shape sh, R.Target r e, Fractional e) =>
+{-# INLINABLE gradientDescent #-}
+gradientDescent :: (R.Source r e, R.Shape sh, R.Target r e, Fractional e, Show sh) =>
   (R.Array R.D sh e -> e) -> e -> Int -> R.Array r sh e -> R.Array r sh e
 gradientDescent f lr stepNum x = g !! stepNum
   where

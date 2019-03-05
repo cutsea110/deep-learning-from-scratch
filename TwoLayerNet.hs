@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, TypeOperators, ScopedTypeVariables, AllowAmbiguousTypes #-}
+{-# LANGUAGE FlexibleContexts, TypeOperators, ScopedTypeVariables, AllowAmbiguousTypes,BangPatterns #-}
 module TwoLayerNet where
 
 import Control.Arrow ((&&&))
@@ -71,7 +71,7 @@ randomSampling n (imgs, lbls) = do
       transSh vec (R.Z R.:. r R.:. c) = R.ix2 (vec R.! (R.ix1 r)) c
 
 main = do
-  let (hiddenSize, outputSize, batchSize, w) = (100, 10, 100, fromIntegral (maxBound :: Word8)::Double)
+  let (hiddenSize, outputSize, batchSize, w) = (50, 10, 100, fromIntegral (maxBound :: Word8)::Double)
 
   (_xi, _xl) <- loadTrain
   -- normalize
@@ -79,7 +79,7 @@ main = do
         = (R.map ((/w).fromIntegral) _xi, R.map fromIntegral _xl)
   let (shxi, r, c) = (R.extent xi, row shxi, col shxi)
   net <- initTwoLayerNet c hiddenSize outputSize (0.0, 1.0) 0.0
-  (sImgs, sLbls) <- randomSampling batchSize (xi, xl)
+  (!sImgs, !sLbls) <- randomSampling batchSize (xi, xl)
 
   -- test
   let ret@((gw1, gb1):(gw2, gb2):[]) = numGrad net sImgs sLbls
@@ -89,7 +89,7 @@ main = do
   print $ R.computeUnboxedS gb1
   print "gw2"
   print $ R.computeUnboxedS gw2
---  print "gw1"
---  print $ R.computeUnboxedS gw1
+  print "gw1"
+  print $ R.computeUnboxedS gw1
 
   putStrLn "Done."
