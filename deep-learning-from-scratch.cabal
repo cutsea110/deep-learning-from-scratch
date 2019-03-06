@@ -53,4 +53,4 @@ executable main
   
   build-depends: deep-learning-from-scratch
                , base
-  ghc-options: -rtsopts -threaded
+  ghc-options: -Odph -rtsopts -threaded -fno-liberate-case -funfolding-use-threshold1000 -funfolding-keeness-factor1000 -fllvm -optlo-O3
