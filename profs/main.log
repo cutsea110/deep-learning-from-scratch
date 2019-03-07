@@ -1,0 +1,33 @@
+/home/cutsea110/devel/haskell/deep-learning-from-scratch/dist-newstyle/build/x86_64-linux/ghc-8.4.4/deep-learning-from-scratch-0.1.0.0/x/main/build/main/main +RTS -p -N8 -smain.log 
+1,281,895,494,288 bytes allocated in the heap
+  16,168,160,632 bytes copied during GC
+   3,392,106,320 bytes maximum residency (14185 sample(s))
+      58,986,672 bytes maximum slop
+           11054 MB total memory in use (4335 MB lost due to fragmentation)
+
+                                     Tot time (elapsed)  Avg pause  Max pause
+  Gen  0     1166951 colls, 1166951 par   661.315s  35.000s     0.0000s    0.0315s
+  Gen  1     14185 colls, 14184 par   89.845s  11.454s     0.0008s    4.4510s
+
+  Parallel GC work balance: 11.91% (serial 0%, perfect 100%)
+
+  TASKS: 18 (1 bound, 17 peak workers (17 total), using -N8)
+
+  SPARKS: 0 (0 converted, 0 overflowed, 0 dud, 0 GC'd, 0 fizzled)
+
+  INIT    time    0.003s  (  0.002s elapsed)
+  MUT     time  2999.023s  (2628.891s elapsed)
+  GC      time  751.161s  ( 46.454s elapsed)
+  RP      time    0.000s  (  0.000s elapsed)
+  PROF    time    0.000s  (  0.000s elapsed)
+  EXIT    time    0.002s  (  0.001s elapsed)
+  Total   time  3750.188s  (2675.347s elapsed)
+
+  Alloc rate    427,437,702 bytes per MUT second
+
+  Productivity  80.0% of total user, 98.3% of total elapsed
+
+gc_alloc_block_sync: 10036530
+whitehole_spin: 0
+gen[0].sync: 2305
+gen[1].sync: 110119
